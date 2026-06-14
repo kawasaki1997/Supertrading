@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 
 export type Locale = "vi" | "en";
 export const LOCALE_COOKIE = "locale";
-export const DEFAULT_LOCALE: Locale = "vi";
+export const DEFAULT_LOCALE: Locale = "en";
 
 type Dict = Record<string, string>;
 
@@ -139,10 +139,101 @@ const vi: Dict = {
   "orders.time": "Thời gian",
   "orders.done": "Hoàn tất",
   "orders.view": "Xem",
+  "orders.checkoutOk": "Đặt hàng thành công! Cảm ơn bạn đã mua sắm.",
 
   // profile
   "profile.title": "Hồ sơ của tôi",
   "profile.sub": "Quản lý thông tin & bảo mật tài khoản",
+
+  // cart extra
+  "cart.decrease": "Giảm",
+  "cart.increase": "Tăng",
+  "cart.remove": "Xóa",
+  "cart.errStock": "Một số sản phẩm đã hết hàng — vui lòng cập nhật giỏ.",
+  "cart.errEmpty": "Giỏ hàng đang trống.",
+
+  // deposit
+  "deposit.method": "Phương thức nạp",
+  "deposit.rate": "Tỷ giá",
+  "deposit.quickAmount": "Chọn nhanh số tiền (USD)",
+  "deposit.customAmount": "Hoặc nhập số tiền (USD)",
+  "deposit.needSend": "Cần chuyển",
+  "deposit.youGet": "Bạn sẽ được cộng",
+  "deposit.createOrder": "Tạo lệnh nạp",
+  "deposit.howTo": "Hướng dẫn nạp tiền",
+  "deposit.step1": "Chọn loại tiền (USDT BEP-20 hoặc Litecoin) và số tiền muốn nạp.",
+  "deposit.step2": "Bấm Tạo lệnh nạp để lấy địa chỉ ví & mã đơn.",
+  "deposit.step3": "Chuyển đúng số lượng crypto tới địa chỉ hiển thị.",
+  "deposit.step4": "Ghi mã đơn / username vào ghi chú (memo) nếu có.",
+  "deposit.step5": "Sau khi admin xác nhận nhận được tiền, số dư sẽ được cộng tự động.",
+  "deposit.important": "Lưu ý quan trọng",
+  "deposit.importantMsg": "Gửi đúng mạng lưới (BEP-20 cho USDT). Gửi sai mạng có thể mất tiền vĩnh viễn.",
+  "deposit.history": "Lịch sử nạp tiền",
+  "deposit.noOrders": "Chưa có lệnh nạp nào.",
+  "deposit.colCode": "Mã đơn",
+  "deposit.colType": "Loại",
+  "deposit.colAmount": "Số tiền",
+  "deposit.colStatus": "Trạng thái",
+  "deposit.colTime": "Thời gian",
+  "deposit.view": "Xem",
+  "deposit.statusPending": "Chờ thanh toán",
+  "deposit.statusCompleted": "Đã cộng tiền",
+  "deposit.statusRejected": "Bị từ chối",
+  "deposit.orderCode": "Mã lệnh nạp",
+  "deposit.transferExact": "Chuyển chính xác",
+  "deposit.credited": "được cộng",
+  "deposit.viaNetwork": "qua mạng",
+  "deposit.walletAddr": "Địa chỉ ví nhận",
+  "deposit.memo": "Ghi chú / Memo (username của bạn)",
+  "deposit.waitNote": "Sau khi chuyển, vui lòng chờ admin xác nhận (thường vài phút). Số dư sẽ được cộng tự động khi xác nhận xong.",
+  "deposit.creditedDone": "Đã cộng vào tài khoản của bạn. Cảm ơn!",
+  "deposit.rejectedMsg": "Lệnh nạp bị từ chối. Vui lòng liên hệ hỗ trợ nếu bạn đã chuyển tiền.",
+  "deposit.backToDeposit": "Quay lại nạp tiền",
+
+  // order detail
+  "order.back": "Quay lại đơn hàng",
+  "order.code": "Mã đơn",
+  "order.paid": "Đã thanh toán",
+  "order.product": "Sản phẩm",
+  "order.qty": "Số lượng",
+  "order.total": "Thành tiền",
+  "order.time": "Thời gian",
+  "order.dataTitle": "Dữ liệu tài khoản / vật phẩm",
+  "order.copyData": "Chép dữ liệu",
+  "order.copied": "Đã chép",
+  "order.download": "Tải về (.txt)",
+  "order.waiting": "Đơn của bạn đang chờ được giao dữ liệu. Vui lòng đợi trong giây lát, hoặc bấm Báo lỗi bên dưới nếu chờ quá lâu.",
+  "order.reportTitle": "Báo lỗi / Khiếu nại",
+  "order.reportSub": "Dữ liệu sai, không đăng nhập được, hoặc chưa nhận hàng? Gửi báo lỗi tới admin.",
+  "order.reportSent": "Đã gửi báo lỗi. Admin sẽ xử lý sớm nhất.",
+  "order.reportEmpty": "Vui lòng nhập nội dung báo lỗi.",
+  "order.reportPlaceholder": "Mô tả vấn đề bạn gặp phải…",
+  "order.reportSend": "Gửi báo lỗi",
+  "order.reportResolved": "Đã xử lý",
+  "order.reportPending": "Đang chờ",
+
+  // profile detail
+  "profile.balanceWallet": "Số dư ví",
+  "profile.role": "Vai trò",
+  "profile.joined": "Tham gia",
+  "profile.statusLabel": "Trạng thái",
+  "profile.active": "Đang hoạt động",
+  "profile.personalInfo": "Thông tin cá nhân",
+  "profile.displayName": "Tên hiển thị",
+  "profile.emailLocked": "Email (không thể đổi)",
+  "profile.saveChanges": "Lưu thay đổi",
+  "profile.changePassword": "Đổi mật khẩu",
+  "profile.currentPassword": "Mật khẩu hiện tại",
+  "profile.newPassword": "Mật khẩu mới",
+  "profile.newPasswordPh": "Tối thiểu 6 ký tự",
+  "profile.confirmNew": "Nhập lại mật khẩu mới",
+  "profile.okProfile": "Đã cập nhật hồ sơ.",
+  "profile.okPassword": "Đổi mật khẩu thành công.",
+  "profile.errName": "Tên không được để trống.",
+  "profile.errMissing": "Vui lòng điền đầy đủ thông tin.",
+  "profile.errShort": "Mật khẩu mới tối thiểu 6 ký tự.",
+  "profile.errMatch": "Mật khẩu nhập lại không khớp.",
+  "profile.errCurrent": "Mật khẩu hiện tại không đúng.",
 };
 
 const en: Dict = {
@@ -268,9 +359,100 @@ const en: Dict = {
   "orders.time": "Time",
   "orders.done": "Completed",
   "orders.view": "View",
+  "orders.checkoutOk": "Order placed successfully! Thank you for shopping.",
 
   "profile.title": "My profile",
   "profile.sub": "Manage your account info & security",
+
+  // cart extra
+  "cart.decrease": "Decrease",
+  "cart.increase": "Increase",
+  "cart.remove": "Remove",
+  "cart.errStock": "Some items are out of stock — please update your cart.",
+  "cart.errEmpty": "Your cart is empty.",
+
+  // deposit
+  "deposit.method": "Deposit method",
+  "deposit.rate": "Rate",
+  "deposit.quickAmount": "Quick select amount (USD)",
+  "deposit.customAmount": "Or enter amount (USD)",
+  "deposit.needSend": "You send",
+  "deposit.youGet": "You receive",
+  "deposit.createOrder": "Create deposit",
+  "deposit.howTo": "How to deposit",
+  "deposit.step1": "Choose currency (USDT BEP-20 or Litecoin) and the amount to deposit.",
+  "deposit.step2": "Click Create deposit to get the wallet address & order code.",
+  "deposit.step3": "Send the exact crypto amount to the address shown.",
+  "deposit.step4": "Add the order code / username in the memo field if available.",
+  "deposit.step5": "After admin confirms the payment, your balance is credited automatically.",
+  "deposit.important": "Important note",
+  "deposit.importantMsg": "Use the correct network (BEP-20 for USDT). Wrong network may permanently lose funds.",
+  "deposit.history": "Deposit history",
+  "deposit.noOrders": "No deposit orders yet.",
+  "deposit.colCode": "Order code",
+  "deposit.colType": "Type",
+  "deposit.colAmount": "Amount",
+  "deposit.colStatus": "Status",
+  "deposit.colTime": "Time",
+  "deposit.view": "View",
+  "deposit.statusPending": "Awaiting payment",
+  "deposit.statusCompleted": "Credited",
+  "deposit.statusRejected": "Rejected",
+  "deposit.orderCode": "Deposit code",
+  "deposit.transferExact": "Transfer exactly",
+  "deposit.credited": "credited",
+  "deposit.viaNetwork": "via network",
+  "deposit.walletAddr": "Receiving wallet address",
+  "deposit.memo": "Memo / Note (your username)",
+  "deposit.waitNote": "After transferring, please wait for admin confirmation (usually a few minutes). Your balance will be credited automatically once confirmed.",
+  "deposit.creditedDone": "credited to your account. Thank you!",
+  "deposit.rejectedMsg": "This deposit was rejected. Please contact support if you already transferred.",
+  "deposit.backToDeposit": "Back to deposit",
+
+  // order detail
+  "order.back": "Back to orders",
+  "order.code": "Order code",
+  "order.paid": "Paid",
+  "order.product": "Product",
+  "order.qty": "Quantity",
+  "order.total": "Total",
+  "order.time": "Time",
+  "order.dataTitle": "Account / item data",
+  "order.copyData": "Copy data",
+  "order.copied": "Copied",
+  "order.download": "Download (.txt)",
+  "order.waiting": "Your order is awaiting data delivery. Please wait a moment, or click Report below if it takes too long.",
+  "order.reportTitle": "Report / Complaint",
+  "order.reportSub": "Wrong data, can't log in, or haven't received your item? Send a report to admin.",
+  "order.reportSent": "Report sent. Admin will handle it soon.",
+  "order.reportEmpty": "Please enter the report content.",
+  "order.reportPlaceholder": "Describe the issue you're facing…",
+  "order.reportSend": "Send report",
+  "order.reportResolved": "Resolved",
+  "order.reportPending": "Pending",
+
+  // profile detail
+  "profile.balanceWallet": "Wallet balance",
+  "profile.role": "Role",
+  "profile.joined": "Joined",
+  "profile.statusLabel": "Status",
+  "profile.active": "Active",
+  "profile.personalInfo": "Personal information",
+  "profile.displayName": "Display name",
+  "profile.emailLocked": "Email (cannot be changed)",
+  "profile.saveChanges": "Save changes",
+  "profile.changePassword": "Change password",
+  "profile.currentPassword": "Current password",
+  "profile.newPassword": "New password",
+  "profile.newPasswordPh": "At least 6 characters",
+  "profile.confirmNew": "Confirm new password",
+  "profile.okProfile": "Profile updated.",
+  "profile.okPassword": "Password changed successfully.",
+  "profile.errName": "Name cannot be empty.",
+  "profile.errMissing": "Please fill in all fields.",
+  "profile.errShort": "New password must be at least 6 characters.",
+  "profile.errMatch": "Passwords do not match.",
+  "profile.errCurrent": "Current password is incorrect.",
 };
 
 export const messages: Record<Locale, Dict> = { vi, en };
@@ -283,7 +465,7 @@ export function getDict(locale: Locale): Dict {
 export async function getLocale(): Promise<Locale> {
   const jar = await cookies();
   const v = jar.get(LOCALE_COOKIE)?.value;
-  return v === "en" ? "en" : "vi";
+  return v === "vi" ? "vi" : "en";
 }
 
 /** Server-side translator. */

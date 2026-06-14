@@ -10,12 +10,7 @@ import {
   removeCartItemAction,
   checkoutAction,
 } from "@/lib/cart-actions";
-
-const checkoutErr: Record<string, string> = {
-  balance: "Số dư không đủ. Hãy nạp thêm tiền.",
-  stock: "Một số sản phẩm đã hết hàng — vui lòng cập nhật giỏ.",
-  empty: "Giỏ hàng đang trống.",
-};
+import { useT } from "@/components/i18n/LangProvider";
 
 export function CartView({
   lines,
@@ -26,9 +21,16 @@ export function CartView({
   total: number;
   balance: number;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
+
+  const checkoutErr: Record<string, string> = {
+    balance: t("err.balance"),
+    stock: t("cart.errStock"),
+    empty: t("cart.errEmpty"),
+  };
 
   const enough = balance >= total;
 
@@ -45,7 +47,7 @@ export function CartView({
     start(async () => {
       const res = await checkoutAction();
       if (res && !res.ok) {
-        setErr(checkoutErr[res.error ?? ""] ?? "Có lỗi, thử lại.");
+        setErr(checkoutErr[res.error ?? ""] ?? t("err.generic"));
         router.refresh();
       }
     });
@@ -55,12 +57,12 @@ export function CartView({
     return (
       <div className="rounded-2xl glass p-10 text-center">
         <ShoppingBag className="mx-auto mb-3 h-10 w-10 text-muted" />
-        <p className="text-sm text-muted">Giỏ hàng của bạn đang trống.</p>
+        <p className="text-sm text-muted">{t("cart.empty")}</p>
         <Link
           href="/"
           className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-b from-gold-300 to-gold-600 px-5 py-2.5 text-sm font-bold text-ink-950 transition-all hover:from-gold-200 hover:to-gold-500"
         >
-          Tiếp tục mua sắm
+          {t("cart.continue")}
         </Link>
       </div>
     );
@@ -92,7 +94,7 @@ export function CartView({
                 disabled={pending}
                 onClick={() => run(() => updateCartQtyAction(l.id, l.qty - 1))}
                 className="grid h-7 w-7 cursor-pointer place-items-center rounded-md text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment"
-                aria-label="Giảm"
+                aria-label={t("cart.decrease")}
               >
                 <Minus className="h-3.5 w-3.5" />
               </button>
@@ -101,7 +103,7 @@ export function CartView({
                 disabled={pending || l.qty >= l.stock}
                 onClick={() => run(() => updateCartQtyAction(l.id, l.qty + 1))}
                 className="grid h-7 w-7 cursor-pointer place-items-center rounded-md text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment disabled:opacity-40"
-                aria-label="Tăng"
+                aria-label={t("cart.increase")}
               >
                 <Plus className="h-3.5 w-3.5" />
               </button>
@@ -115,7 +117,7 @@ export function CartView({
               disabled={pending}
               onClick={() => run(() => removeCartItemAction(l.id))}
               className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg text-rose-soft/70 transition-colors hover:bg-rose-soft/10 hover:text-rose-soft"
-              aria-label="Xóa"
+              aria-label={t("cart.remove")}
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -125,20 +127,20 @@ export function CartView({
 
       {/* Summary */}
       <div className="h-fit space-y-4 rounded-2xl glass p-5 lg:sticky lg:top-24">
-        <h2 className="font-display text-lg font-bold text-parchment">Tổng kết</h2>
+        <h2 className="font-display text-lg font-bold text-parchment">{t("cart.summary")}</h2>
 
         <div className="space-y-2 text-sm">
           <div className="flex justify-between text-parchment-dim">
-            <span>Tạm tính</span>
+            <span>{t("cart.subtotal")}</span>
             <span className="font-semibold text-parchment">${total.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-parchment-dim">
-            <span className="flex items-center gap-1.5"><Wallet className="h-4 w-4 text-gold-400" /> Số dư</span>
+            <span className="flex items-center gap-1.5"><Wallet className="h-4 w-4 text-gold-400" /> {t("common.balance")}</span>
             <span className="font-semibold text-parchment">${balance.toFixed(2)}</span>
           </div>
           <div className="rule-gold my-1" />
           <div className="flex justify-between">
-            <span className="font-semibold text-parchment">Thanh toán</span>
+            <span className="font-semibold text-parchment">{t("cart.total")}</span>
             <span className="font-display text-xl font-bold text-gold-grad">${total.toFixed(2)}</span>
           </div>
         </div>
@@ -151,7 +153,7 @@ export function CartView({
 
         {!enough && !err && (
           <p className="rounded-lg bg-gold-500/8 px-3 py-2 text-xs text-gold-300 ring-1 ring-gold-500/20">
-            Số dư không đủ. <Link href="/nap-tien" className="font-semibold underline">Nạp thêm tiền</Link>.
+            {t("cart.notEnough")} <Link href="/nap-tien" className="font-semibold underline">{t("cart.topup")}</Link>
           </p>
         )}
 
@@ -161,11 +163,11 @@ export function CartView({
           className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-gold-300 to-gold-600 py-3 text-sm font-bold tracking-wide text-ink-950 transition-all hover:from-gold-200 hover:to-gold-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingBag className="h-4 w-4" />}
-          {pending ? "Đang xử lý" : "Thanh toán"}
+          {pending ? t("common.processing") : t("cart.checkout")}
         </button>
 
         <Link href="/" className="block text-center text-xs text-muted hover:text-parchment">
-          Tiếp tục mua sắm
+          {t("cart.continue")}
         </Link>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Copy, Check, Download } from "lucide-react";
+import { useT } from "@/components/i18n/LangProvider";
 
 export function DeliveredBox({
   content,
@@ -10,6 +11,7 @@ export function DeliveredBox({
   content: string;
   code: string;
 }) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
 
   function download() {
@@ -39,13 +41,13 @@ export function DeliveredBox({
           }`}
         >
           {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-          {copied ? "Đã chép" : "Chép dữ liệu"}
+          {copied ? t("order.copied") : t("order.copyData")}
         </button>
         <button
           onClick={download}
           className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-gold-300 to-gold-600 py-2.5 text-sm font-bold text-ink-950 transition-all hover:from-gold-200 hover:to-gold-500"
         >
-          <Download className="h-4 w-4" /> Tải về (.txt)
+          <Download className="h-4 w-4" /> {t("order.download")}
         </button>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DollarSign, Coins, ArrowRight } from "lucide-react";
 import { createDepositAction } from "@/lib/deposit-actions";
+import { useT } from "@/components/i18n/LangProvider";
 
 export type MethodOption = {
   key: string;
@@ -15,6 +16,7 @@ export type MethodOption = {
 const QUICK = [5, 10, 20, 50, 100];
 
 export function DepositForm({ methods }: { methods: MethodOption[] }) {
+  const t = useT();
   const [method, setMethod] = useState(methods[0]?.key ?? "");
   const [amount, setAmount] = useState(5);
 
@@ -29,7 +31,7 @@ export function DepositForm({ methods }: { methods: MethodOption[] }) {
 
       {/* Method */}
       <div>
-        <p className="mb-2 text-sm font-semibold text-parchment-dim">Phương thức nạp</p>
+        <p className="mb-2 text-sm font-semibold text-parchment-dim">{t("deposit.method")}</p>
         <div className="grid grid-cols-2 gap-3">
           {methods.map((m) => {
             const active = m.key === method;
@@ -53,14 +55,14 @@ export function DepositForm({ methods }: { methods: MethodOption[] }) {
         </div>
         {selected && (
           <p className="mt-2 text-xs text-muted">
-            Tỷ giá: 1 {selected.symbol} = ${selected.usdPerUnit.toLocaleString("en-US")}
+            {t("deposit.rate")}: 1 {selected.symbol} = ${selected.usdPerUnit.toLocaleString("en-US")}
           </p>
         )}
       </div>
 
       {/* Quick amounts */}
       <div>
-        <p className="mb-2 text-sm font-semibold text-parchment-dim">Chọn nhanh số tiền (USD)</p>
+        <p className="mb-2 text-sm font-semibold text-parchment-dim">{t("deposit.quickAmount")}</p>
         <div className="flex flex-wrap gap-2">
           {QUICK.map((q) => (
             <button
@@ -81,7 +83,7 @@ export function DepositForm({ methods }: { methods: MethodOption[] }) {
 
       {/* Custom amount */}
       <div>
-        <p className="mb-2 text-sm font-semibold text-parchment-dim">Hoặc nhập số tiền (USD)</p>
+        <p className="mb-2 text-sm font-semibold text-parchment-dim">{t("deposit.customAmount")}</p>
         <div className="relative">
           <DollarSign className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />
           <input
@@ -103,13 +105,13 @@ export function DepositForm({ methods }: { methods: MethodOption[] }) {
       {/* Summary */}
       <div className="space-y-2 rounded-xl border border-gold-500/15 bg-ink-800/40 p-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-parchment-dim">Cần chuyển:</span>
+          <span className="text-parchment-dim">{t("deposit.needSend")}:</span>
           <span className="font-display font-bold text-parchment">
             {sendStr} {selected?.symbol}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-parchment-dim">Bạn sẽ được cộng:</span>
+          <span className="text-parchment-dim">{t("deposit.youGet")}:</span>
           <span className="font-display text-lg font-bold text-gold-grad">
             ${amount.toFixed(2)}
           </span>
@@ -121,7 +123,7 @@ export function DepositForm({ methods }: { methods: MethodOption[] }) {
         disabled={!amount || amount < 1}
         className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-gold-300 to-gold-600 py-3.5 text-sm font-bold tracking-wide text-ink-950 transition-all hover:from-gold-200 hover:to-gold-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Tạo lệnh nạp ${amount.toFixed(2)}
+        {t("deposit.createOrder")} ${amount.toFixed(2)}
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
       </button>
     </form>
