@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+/* ============================================================
+   LouK Store — Design Tokens (dark luxury, gold + muted purple)
+   ============================================================ */
+@theme {
+  /* Surfaces — deep ink with a faint violet undertone */
+  --color-ink-950: #06060a;
+  --color-ink-900: #0a0a10;
+  --color-ink-850: #0e0e16;
+  --color-ink-800: #13131d;
+  --color-ink-700: #1a1a26;
+  --color-ink-600: #242433;
+  --color-ink-500: #313143;
+
+  /* Gold — the signature accent (Hextech-inspired) */
+  --color-gold-200: #f6e8c6;
+  --color-gold-300: #e9cf94;
+  --color-gold-400: #d4b46a;
+  --color-gold-500: #c8aa6e;
+  --color-gold-600: #a8884e;
+  --color-gold-700: #7a6235;
+  --color-gold-800: #4f3f22;
+
+  /* Royal — muted, desaturated purple (never neon) */
+  --color-royal-300: #c3b4e6;
+  --color-royal-400: #9d89c9;
+  --color-royal-500: #7c6ba8;
+  --color-royal-600: #5d4f84;
+  --color-royal-700: #423963;
+  --color-royal-800: #2a2442;
+
+  /* Text */
+  --color-parchment: #ece6da;
+  --color-parchment-dim: #b7b1a6;
+  --color-muted: #8b867c;
+
+  /* Status */
+  --color-emerald-soft: #6fcf97;
+  --color-rose-soft: #d98c8c;
+
+  /* Fonts */
+  --font-display: var(--font-cinzel), ui-serif, Georgia, serif;
+  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+
+  /* Easing */
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* {
+  border-color: color-mix(in srgb, var(--color-gold-500) 12%, transparent);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-ink-950);
+  color: var(--color-parchment);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-image:
+    radial-gradient(1200px 600px at 78% -10%, color-mix(in srgb, var(--color-royal-700) 38%, transparent), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, color-mix(in srgb, var(--color-gold-800) 30%, transparent), transparent 55%),
+    radial-gradient(700px 700px at 50% 120%, color-mix(in srgb, var(--color-royal-800) 40%, transparent), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-ink-900); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--color-gold-700), var(--color-royal-700));
+  border-radius: 99px;
+  border: 2px solid var(--color-ink-900);
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(var(--color-gold-500), var(--color-royal-500)); }
+
+::selection { background: color-mix(in srgb, var(--color-gold-500) 35%, transparent); color: #fff; }
+
+/* ============================================================
+   Reusable luxury utilities
+   ============================================================ */
+@layer utilities {
+  /* Gold gradient text */
+  .text-gold-grad {
+    background: linear-gradient(180deg, #fbf1d3 0%, var(--color-gold-400) 45%, var(--color-gold-600) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  /* Frosted glass surface */
+  .glass {
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-ink-700) 78%, transparent),
+      color-mix(in srgb, var(--color-ink-850) 88%, transparent)
+    );
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    border: 1px solid color-mix(in srgb, var(--color-gold-500) 14%, transparent);
+  }
+
+  .glass-strong {
+    background: color-mix(in srgb, var(--color-ink-850) 92%, transparent);
+    backdrop-filter: blur(20px) saturate(130%);
+    -webkit-backdrop-filter: blur(20px) saturate(130%);
+    border: 1px solid color-mix(in srgb, var(--color-gold-500) 16%, transparent);
+  }
+
+  /* Hairline gold border */
+  .ring-gold {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-gold-500) 22%, transparent),
+      0 0 0 1px color-mix(in srgb, #000 40%, transparent);
+  }
+
+  .glow-gold {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-gold-500) 30%, transparent),
+      0 8px 40px -8px color-mix(in srgb, var(--color-gold-500) 45%, transparent);
+  }
+
+  .glow-royal {
+    box-shadow: 0 10px 50px -12px color-mix(in srgb, var(--color-royal-500) 60%, transparent);
+  }
+
+  /* Thin top divider line in gold */
+  .rule-gold {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-gold-500) 60%, transparent), transparent);
+  }
+
+  .font-display { font-family: var(--font-display); }
+  .font-serif { font-family: var(--font-serif); }
+}
+
+/* ============================================================
+   Keyframes
+   ============================================================ */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.6; }
+  100% { transform: translate(var(--dx, 20px), -120px); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes auroraShift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(3%, -2%, 0) scale(1.08); }
+  66% { transform: translate3d(-3%, 2%, 0) scale(1.04); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+  50% { opacity: 0.6; box-shadow: 0 0 8px 1px currentColor; }
+}
+
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
+.animate-float { animation: floatY 6s var(--ease-lux) infinite; }
+.animate-aurora { animation: auroraShift 18s ease-in-out infinite; }
+.animate-pulse-dot { animation: pulseDot 2.4s ease-in-out infinite; }
+.animate-spin-slow { animation: spinSlow 24s linear infinite; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

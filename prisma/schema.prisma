@@ -1,0 +1,145 @@
+// Prisma schema — SuperTrading
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  title     String
+  subtitle  String    @default("")
+  slug      String    @unique
+  order     Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id         String   @id @default(cuid())
+  name       String
+  price      Float    @default(0)
+  oldPrice   Float?
+  stock      Int      @default(0)
+  sold       Int      @default(0)
+  badge      String? // HOT | NEW | -50% | LIMITED | null
+  image      String? // /uploads/xxx.jpg
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  order      Int      @default(0)
+  active     Boolean  @default(true)
+  cartItems  CartItem[]
+  stockItems StockItem[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  balance      Float     @default(0)
+  role         String    @default("user") // user | admin
+  sessions     Session[]
+  resetTokens  PasswordResetToken[]
+  deposits     DepositOrder[]
+  orders       Order[]
+  cart         CartItem[]
+  reports      Report[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model DepositOrder {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  method       String // USDT_BEP20 | LTC
+  symbol       String // USDT | LTC
+  network      String // BEP-20 | LTC
+  amountUsd    Float
+  cryptoAmount Float
+  address      String
+  status       String    @default("PENDING") // PENDING | COMPLETED | REJECTED
+  note         String?
+  createdAt    DateTime  @default(now())
+  confirmedAt  DateTime?
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  qty       Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Order {
+  id               String   @id @default(cuid())
+  code             String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String
+  productId        String? // snapshot — giữ lịch sử kể cả khi sản phẩm bị xóa
+  productName      String
+  price            Float
+  qty              Int      @default(1)
+  total            Float
+  status           String   @default("COMPLETED")
+  deliveredContent String? // dữ liệu account/item giao cho khách
+  delivered        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+}
+
+model StockItem {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  content   String // dữ liệu giao: vd "user:pass", key, info...
+  status    String   @default("AVAILABLE") // AVAILABLE | SOLD
+  orderId   String? // đơn đã tiêu thụ item này
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  orderId    String?
+  orderCode  String?
+  message    String
+  status     String   @default("OPEN") // OPEN | RESOLVED
+  adminReply String?
+  createdAt  DateTime @default(now())
+}
