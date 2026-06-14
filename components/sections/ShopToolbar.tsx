@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LayoutGrid, SlidersHorizontal } from "lucide-react";
+import { useT } from "@/components/i18n/LangProvider";
 
 type Chip = { id: string; title: string; slug: string };
 
@@ -12,8 +13,9 @@ export function ShopToolbar({
   categories: Chip[];
   total: number;
 }) {
+  const t = useT();
   const [active, setActive] = useState("all");
-  const chips = [{ id: "all", title: "Tất cả", slug: "all" }, ...categories];
+  const chips = [{ id: "all", title: t("shop.all"), slug: "all" }, ...categories];
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl glass p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -23,9 +25,9 @@ export function ShopToolbar({
         </span>
         <div>
           <h2 className="font-display text-lg font-bold tracking-wide text-parchment">
-            Cửa hàng
+            {t("shop.title")}
           </h2>
-          <p className="text-xs text-muted">{total} sản phẩm đang bán</p>
+          <p className="text-xs text-muted">{total} {t("shop.productsOnSale")}</p>
         </div>
       </div>
 
@@ -51,7 +53,7 @@ export function ShopToolbar({
 
       <button className="flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-ink-800/70 px-3.5 py-2 text-xs font-semibold text-parchment-dim ring-1 ring-gold-500/12 transition-colors hover:text-parchment">
         <SlidersHorizontal className="h-4 w-4" />
-        Bộ lọc
+        {t("shop.filter")}
       </button>
     </div>
   );

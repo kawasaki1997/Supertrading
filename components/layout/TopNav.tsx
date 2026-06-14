@@ -18,7 +18,6 @@ import {
   LogIn,
   UserPlus,
   Search,
-  ChevronDown,
   ShoppingCart,
   Menu,
   X,
@@ -27,18 +26,19 @@ import {
 import { Brand } from "@/components/brand/DragonLogo";
 import { logoutUserAction } from "@/lib/user-actions";
 import type { SessionUser } from "@/lib/types";
+import { useT, LangSwitch } from "@/components/i18n/LangProvider";
 
-type NavItem = { label: string; icon: LucideIcon; href?: string; badge?: number };
+type NavItem = { key: string; icon: LucideIcon; href?: string; badge?: number };
 
 const nav: NavItem[] = [
-  { label: "Cửa hàng", icon: Store, href: "/" },
-  { label: "Nạp tiền", icon: Wallet, href: "/nap-tien" },
-  { label: "Đơn hàng", icon: ScrollText, href: "/don-hang" },
-  { label: "Khiếu nại", icon: AlertTriangle },
-  { label: "Giao dịch", icon: History },
-  { label: "Thông báo", icon: Bell, badge: 3 },
-  { label: "Chat hỗ trợ", icon: MessageSquare },
-  { label: "Hướng dẫn", icon: BookOpen },
+  { key: "nav.shop", icon: Store, href: "/" },
+  { key: "nav.deposit", icon: Wallet, href: "/nap-tien" },
+  { key: "nav.orders", icon: ScrollText, href: "/don-hang" },
+  { key: "nav.complaints", icon: AlertTriangle },
+  { key: "nav.transactions", icon: History },
+  { key: "nav.notifications", icon: Bell, badge: 3 },
+  { key: "nav.support", icon: MessageSquare },
+  { key: "nav.guide", icon: BookOpen },
 ];
 
 export function TopNav({
@@ -49,15 +49,16 @@ export function TopNav({
   cartCount: number;
 }) {
   const pathname = usePathname();
+  const t = useT();
   const [activePlaceholder, setActivePlaceholder] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (item: NavItem) =>
-    item.href ? pathname === item.href : activePlaceholder === item.label;
+    item.href ? pathname === item.href : activePlaceholder === item.key;
 
   return (
     <header className="sticky top-0 z-40 border-b border-gold-500/12 bg-ink-950/80 backdrop-blur-xl">
-      {/* ---- Tier 1: brand · search · actions ---- */}
+      {/* ---- Tier 1 ---- */}
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <Brand href="/" />
 
@@ -65,18 +66,14 @@ export function TopNav({
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted transition-colors group-focus-within:text-gold-400" />
           <input
             type="text"
-            placeholder="Tìm vật phẩm, tài khoản, dịch vụ…"
-            aria-label="Tìm kiếm"
+            placeholder={t("nav.searchPlaceholder")}
+            aria-label={t("nav.searchPlaceholder")}
             className="h-10 w-full rounded-xl border border-gold-500/12 bg-ink-800/70 pl-11 pr-4 text-sm text-parchment placeholder:text-muted outline-none transition-all duration-200 focus:border-gold-500/40 focus:bg-ink-800 focus:[box-shadow:0_0_0_3px_color-mix(in_srgb,var(--color-gold-500)_15%,transparent)]"
           />
         </div>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-2.5">
-          <button className="hidden cursor-pointer items-center gap-1.5 rounded-lg border border-gold-500/12 bg-ink-800/70 px-2.5 py-2 text-xs font-semibold text-parchment-dim transition-colors hover:border-gold-500/30 hover:text-parchment lg:flex">
-            <span className="text-base leading-none">🇻🇳</span>
-            VI
-            <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-          </button>
+          <LangSwitch />
 
           {user ? (
             <>
@@ -93,7 +90,7 @@ export function TopNav({
               <Link
                 href="/gio-hang"
                 className="relative grid h-10 w-10 cursor-pointer place-items-center rounded-lg border border-gold-500/12 bg-ink-800/70 text-parchment-dim transition-colors hover:border-gold-500/30 hover:text-parchment"
-                aria-label="Giỏ hàng"
+                aria-label={t("cart.title")}
               >
                 <ShoppingCart className="h-[18px] w-[18px]" />
                 {cartCount > 0 && (
@@ -115,7 +112,7 @@ export function TopNav({
                     {user.name}
                   </span>
                   <span className="block text-[10px] uppercase tracking-wider text-muted">
-                    {user.role === "admin" ? "Quản trị" : "Khách hàng"}
+                    {user.role === "admin" ? t("role.admin") : t("role.customer")}
                   </span>
                 </span>
               </Link>
@@ -126,13 +123,13 @@ export function TopNav({
                 href="/dang-nhap"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-gold-500/15 bg-ink-800/70 px-3.5 py-2 text-xs font-semibold text-parchment-dim transition-colors hover:text-parchment"
               >
-                <LogIn className="h-4 w-4" /> Đăng nhập
+                <LogIn className="h-4 w-4" /> {t("nav.login")}
               </Link>
               <Link
                 href="/dang-ky"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-b from-gold-300 to-gold-600 px-3.5 py-2 text-xs font-bold text-ink-950 transition-all hover:from-gold-200 hover:to-gold-500"
               >
-                <UserPlus className="h-4 w-4" /> Đăng ký
+                <UserPlus className="h-4 w-4" /> {t("nav.register")}
               </Link>
             </div>
           )}
@@ -140,14 +137,14 @@ export function TopNav({
           <button
             onClick={() => setMobileOpen((v) => !v)}
             className="grid h-10 w-10 cursor-pointer place-items-center rounded-lg border border-gold-500/12 bg-ink-800/70 text-parchment-dim transition-colors hover:text-parchment lg:hidden"
-            aria-label="Mở menu"
+            aria-label="Menu"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
-      {/* ---- Tier 2: horizontal management nav (desktop) ---- */}
+      {/* ---- Tier 2 (desktop) ---- */}
       <div className="hidden border-t border-gold-500/8 lg:block">
         <div className="mx-auto flex max-w-7xl items-center gap-1 px-4 sm:px-6">
           <nav className="flex items-center gap-0.5">
@@ -163,7 +160,7 @@ export function TopNav({
                       active ? "text-gold-400" : "text-muted group-hover:text-gold-300"
                     }`}
                   />
-                  {item.label}
+                  {t(item.key)}
                   {item.badge && (
                     <span className="grid h-4 min-w-4 place-items-center rounded-full bg-royal-500/80 px-1 text-[10px] font-bold text-white">
                       {item.badge}
@@ -179,11 +176,11 @@ export function TopNav({
                 </>
               );
               return item.href ? (
-                <Link key={item.label} href={item.href} className={cls}>
+                <Link key={item.key} href={item.href} className={cls}>
                   {inner}
                 </Link>
               ) : (
-                <button key={item.label} onClick={() => setActivePlaceholder(item.label)} className={cls}>
+                <button key={item.key} onClick={() => setActivePlaceholder(item.key)} className={cls}>
                   {inner}
                 </button>
               );
@@ -198,12 +195,12 @@ export function TopNav({
                   className="flex cursor-pointer items-center gap-2 px-3 py-3 text-sm font-medium text-parchment-dim transition-colors hover:text-parchment"
                 >
                   <User className="h-[17px] w-[17px] text-muted" />
-                  Hồ sơ
+                  {t("nav.profile")}
                 </Link>
                 <form action={logoutUserAction}>
                   <button className="flex cursor-pointer items-center gap-2 px-3 py-3 text-sm font-medium text-rose-soft/80 transition-colors hover:text-rose-soft">
                     <LogOut className="h-[17px] w-[17px]" />
-                    Đăng xuất
+                    {t("nav.logout")}
                   </button>
                 </form>
               </>
@@ -214,14 +211,14 @@ export function TopNav({
                   className="flex items-center gap-2 px-3 py-3 text-sm font-medium text-parchment-dim transition-colors hover:text-parchment"
                 >
                   <LogIn className="h-[17px] w-[17px] text-muted" />
-                  Đăng nhập
+                  {t("nav.login")}
                 </Link>
                 <Link
                   href="/dang-ky"
                   className="flex items-center gap-2 px-3 py-3 text-sm font-medium text-gold-400 transition-colors hover:text-gold-300"
                 >
                   <UserPlus className="h-[17px] w-[17px]" />
-                  Đăng ký
+                  {t("nav.register")}
                 </Link>
               </>
             )}
@@ -244,8 +241,8 @@ export function TopNav({
                 <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />
                 <input
                   type="text"
-                  placeholder="Tìm kiếm…"
-                  aria-label="Tìm kiếm"
+                  placeholder={t("nav.searchPlaceholder")}
+                  aria-label={t("nav.searchPlaceholder")}
                   className="h-10 w-full rounded-xl border border-gold-500/12 bg-ink-800/70 pl-11 pr-4 text-sm text-parchment placeholder:text-muted outline-none focus:border-gold-500/40"
                 />
               </div>
@@ -261,7 +258,9 @@ export function TopNav({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-parchment">{user.name}</p>
-                    <p className="text-xs text-muted">Số dư: ${user.balance.toFixed(2)}</p>
+                    <p className="text-xs text-muted">
+                      {t("common.balance")}: ${user.balance.toFixed(2)}
+                    </p>
                   </div>
                 </Link>
               )}
@@ -276,7 +275,7 @@ export function TopNav({
                 const inner = (
                   <>
                     <item.icon className={`h-[18px] w-[18px] ${active ? "text-gold-400" : "text-muted"}`} />
-                    <span className="flex-1 text-left">{item.label}</span>
+                    <span className="flex-1 text-left">{t(item.key)}</span>
                     {item.badge && (
                       <span className="grid h-5 min-w-5 place-items-center rounded-full bg-royal-500/80 px-1.5 text-[10px] font-bold text-white">
                         {item.badge}
@@ -285,14 +284,14 @@ export function TopNav({
                   </>
                 );
                 return item.href ? (
-                  <Link key={item.label} href={item.href} onClick={() => setMobileOpen(false)} className={cls}>
+                  <Link key={item.key} href={item.href} onClick={() => setMobileOpen(false)} className={cls}>
                     {inner}
                   </Link>
                 ) : (
                   <button
-                    key={item.label}
+                    key={item.key}
                     onClick={() => {
-                      setActivePlaceholder(item.label);
+                      setActivePlaceholder(item.key);
                       setMobileOpen(false);
                     }}
                     className={cls}
@@ -307,7 +306,7 @@ export function TopNav({
               {user ? (
                 <form action={logoutUserAction}>
                   <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-rose-soft/80 hover:bg-rose-soft/10">
-                    <LogOut className="h-[18px] w-[18px]" /> Đăng xuất
+                    <LogOut className="h-[18px] w-[18px]" /> {t("nav.logout")}
                   </button>
                 </form>
               ) : (
@@ -316,13 +315,13 @@ export function TopNav({
                     href="/dang-nhap"
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gold-500/15 bg-ink-800/70 px-3 py-2.5 text-sm font-semibold text-parchment-dim"
                   >
-                    <LogIn className="h-[18px] w-[18px]" /> Đăng nhập
+                    <LogIn className="h-[18px] w-[18px]" /> {t("nav.login")}
                   </Link>
                   <Link
                     href="/dang-ky"
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-gold-300 to-gold-600 px-3 py-2.5 text-sm font-bold text-ink-950"
                   >
-                    <UserPlus className="h-[18px] w-[18px]" /> Đăng ký
+                    <UserPlus className="h-[18px] w-[18px]" /> {t("nav.register")}
                   </Link>
                 </div>
               )}

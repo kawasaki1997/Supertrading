@@ -1,6 +1,14 @@
-import { stats } from "@/lib/data";
+import { getT } from "@/lib/i18n";
 
-export function StatsBar() {
+export async function StatsBar() {
+  const t = await getT();
+  const stats = [
+    { value: "48.920+", label: t("stats.completed") },
+    { value: "12.300+", label: t("stats.happy") },
+    { value: "9.870+", label: t("stats.reviews") },
+    { value: t("stats.avgValue"), label: t("stats.avgDelivery") },
+  ];
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {stats.map((s) => (

@@ -1,8 +1,10 @@
 import { ChevronRight } from "lucide-react";
 import type { UICategory } from "@/lib/types";
 import { ProductCard } from "./ProductCard";
+import { getT } from "@/lib/i18n";
 
-export function ProductSection({ category }: { category: UICategory }) {
+export async function ProductSection({ category }: { category: UICategory }) {
+  const t = await getT();
   return (
     <section id={category.slug} className="scroll-mt-28">
       {/* Header */}
@@ -19,7 +21,7 @@ export function ProductSection({ category }: { category: UICategory }) {
           </div>
         </div>
         <button className="hidden shrink-0 cursor-pointer items-center gap-1 text-xs font-semibold text-gold-400 transition-colors hover:text-gold-300 sm:inline-flex">
-          Xem tất cả
+          {t("common.viewAll")}
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
@@ -27,7 +29,7 @@ export function ProductSection({ category }: { category: UICategory }) {
       {/* Grid */}
       {category.products.length === 0 ? (
         <p className="rounded-2xl glass px-4 py-8 text-center text-sm text-muted">
-          Chưa có sản phẩm trong danh mục này.
+          {t("shop.noProducts")}
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3">

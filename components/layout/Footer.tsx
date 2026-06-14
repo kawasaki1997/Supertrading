@@ -1,7 +1,9 @@
 import { MessageCircle } from "lucide-react";
 import { Brand } from "@/components/brand/DragonLogo";
+import { getT } from "@/lib/i18n";
 
-export function Footer() {
+export async function Footer() {
+  const t = await getT();
   return (
     <footer className="mt-4 overflow-hidden rounded-3xl glass">
       <div className="rule-gold" />
@@ -9,15 +11,14 @@ export function Footer() {
         <div className="lg:col-span-1">
           <Brand size="sm" />
           <p className="mt-3 max-w-xs font-serif text-sm text-parchment-dim">
-            Sàn giao dịch vật phẩm &amp; tài khoản game uy tín hàng đầu. Giao
-            dịch an toàn, bảo hành minh bạch.
+            {t("footer.tagline")}
           </p>
         </div>
 
         {[
-          { h: "Cửa hàng", links: ["Robux", "Blox Fruits", "Tài khoản", "Dịch vụ Raid"] },
-          { h: "Hỗ trợ", links: ["Hướng dẫn mua", "Chính sách bảo hành", "Khiếu nại", "Liên hệ"] },
-          { h: "Cộng đồng", links: ["Discord", "Facebook", "TikTok", "Đánh giá"] },
+          { h: t("footer.colShop"), links: ["Robux", "Blox Fruits", "Tài khoản", "Dịch vụ Raid"] },
+          { h: t("footer.colSupport"), links: ["Hướng dẫn mua", "Chính sách bảo hành", "Khiếu nại", "Liên hệ"] },
+          { h: t("footer.colCommunity"), links: ["Discord", "Facebook", "TikTok", "Đánh giá"] },
         ].map((col) => (
           <div key={col.h}>
             <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-gold-400">
@@ -41,7 +42,7 @@ export function Footer() {
 
       <div className="flex flex-col items-center justify-between gap-3 border-t border-gold-500/10 px-8 py-5 sm:flex-row">
         <p className="text-xs text-muted">
-          © 2026 Super Trading. Đã đăng ký bản quyền.
+          © 2026 Super Trading. {t("footer.rights")}
         </p>
         <a
           href="#"

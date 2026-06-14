@@ -22,6 +22,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Particles } from "./Particles";
+import { useT } from "@/components/i18n/LangProvider";
 
 const tags: { icon: LucideIcon; title: string; sub: string; side: "l" | "r"; y: string }[] = [
   { icon: Coins, title: "ROBUX", sub: "Cheap & Safe", side: "l", y: "12%" },
@@ -33,10 +34,10 @@ const tags: { icon: LucideIcon; title: string; sub: string; side: "l" | "r"; y: 
 ];
 
 const trust = [
-  { icon: BadgeDollarSign, label: "Giá tốt nhất" },
-  { icon: Zap, label: "Giao tức thì" },
-  { icon: ShieldCheck, label: "An toàn 100%" },
-  { icon: Headphones, label: "Hỗ trợ 24/7" },
+  { icon: BadgeDollarSign, key: "trust.bestPrice" },
+  { icon: Zap, key: "trust.instant" },
+  { icon: ShieldCheck, key: "trust.safe" },
+  { icon: Headphones, key: "trust.support" },
 ];
 
 function Layer({
@@ -62,6 +63,7 @@ function Layer({
 }
 
 export function Hero() {
+  const t = useT();
   const ref = useRef<HTMLDivElement>(null);
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
@@ -112,30 +114,30 @@ export function Hero() {
       <Particles count={40} />
 
       {/* ---- Floating service chips (parallax) ---- */}
-      {tags.map((t, i) => (
+      {tags.map((tag, i) => (
         <Layer
-          key={t.title}
+          key={tag.title}
           depth={0.5 + (i % 3) * 0.18}
           mx={mx}
           my={my}
-          className={`absolute z-10 hidden md:block ${t.side === "l" ? "left-5 lg:left-8" : "right-5 lg:right-8"}`}
+          className={`absolute z-10 hidden md:block ${tag.side === "l" ? "left-5 lg:left-8" : "right-5 lg:right-8"}`}
         >
-          <div style={{ top: t.y }} className="absolute">
+          <div style={{ top: tag.y }} className="absolute">
             <motion.div
-              initial={{ opacity: 0, x: t.side === "l" ? -24 : 24 }}
+              initial={{ opacity: 0, x: tag.side === "l" ? -24 : 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="group flex w-[160px] cursor-pointer items-center gap-3 rounded-xl glass px-3 py-2.5 ring-gold transition-all duration-300 hover:-translate-y-0.5 hover:glow-gold"
             >
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-ink-900/60 ring-1 ring-gold-500/20">
-                <t.icon className="h-[18px] w-[18px] text-gold-400" />
+                <tag.icon className="h-[18px] w-[18px] text-gold-400" />
               </span>
               <span className="leading-tight">
                 <span className="block font-display text-[12px] font-bold tracking-wider text-parchment">
-                  {t.title}
+                  {tag.title}
                 </span>
                 <span className="block text-[10px] uppercase tracking-wide text-muted">
-                  {t.sub}
+                  {tag.sub}
                 </span>
               </span>
             </motion.div>
@@ -153,7 +155,7 @@ export function Hero() {
             className="mb-4 inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-parchment-dim"
           >
             <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full text-emerald-soft" style={{ background: "var(--color-emerald-soft)" }} />
-            Roblox Marketplace
+            {t("hero.badge")}
           </motion.span>
 
           <motion.h1
@@ -171,8 +173,7 @@ export function Hero() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="mt-5 max-w-xl font-serif text-xl text-parchment-dim sm:text-2xl"
           >
-            Vật phẩm &amp; tài khoản game đẳng cấp — giao ngay, an toàn tuyệt đối,
-            giá tốt nhất thị trường.
+            {t("hero.tagline")}
           </motion.p>
 
           {/* CTAs */}
@@ -183,11 +184,11 @@ export function Hero() {
             className="mt-8 flex flex-wrap items-center justify-center gap-3"
           >
             <button className="group inline-flex cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-b from-gold-300 to-gold-600 px-6 py-3 text-sm font-bold tracking-wide text-ink-950 transition-all duration-200 hover:from-gold-200 hover:to-gold-500 hover:glow-gold">
-              Mua ngay
+              {t("common.buyNow")}
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </button>
             <button className="inline-flex cursor-pointer items-center gap-2 rounded-xl glass px-6 py-3 text-sm font-semibold text-parchment ring-gold transition-colors duration-200 hover:text-gold-300">
-              Tham gia Discord
+              {t("hero.joinDiscord")}
             </button>
           </motion.div>
 
@@ -206,13 +207,13 @@ export function Hero() {
       {/* ---- Trust strip ---- */}
       <div className="relative z-20 border-t border-gold-500/10 bg-ink-950/40 backdrop-blur-sm">
         <div className="mx-auto grid max-w-3xl grid-cols-2 gap-px sm:grid-cols-4">
-          {trust.map((t) => (
+          {trust.map((item) => (
             <div
-              key={t.label}
+              key={item.key}
               className="flex items-center justify-center gap-2 px-3 py-4 text-center"
             >
-              <t.icon className="h-4 w-4 shrink-0 text-gold-400" />
-              <span className="text-xs font-semibold text-parchment-dim">{t.label}</span>
+              <item.icon className="h-4 w-4 shrink-0 text-gold-400" />
+              <span className="text-xs font-semibold text-parchment-dim">{t(item.key)}</span>
             </div>
           ))}
         </div>

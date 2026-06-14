@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { UIProduct } from "@/lib/types";
 import { buyProductAction } from "@/lib/order-actions";
 import { addToCartAction } from "@/lib/cart-actions";
+import { useT } from "@/components/i18n/LangProvider";
 
 const badgeStyles: Record<string, string> = {
   HOT: "bg-rose-soft/15 text-rose-soft ring-rose-soft/30",
@@ -22,12 +23,6 @@ const tints = [
   "from-gold-400/40 to-ink-700",
 ];
 
-const errorText: Record<string, string> = {
-  balance: "Số dư không đủ — hãy nạp tiền.",
-  stock: "Sản phẩm đã hết hàng.",
-  unavailable: "Sản phẩm không khả dụng.",
-};
-
 export function ProductCard({
   product,
   index,
@@ -35,6 +30,7 @@ export function ProductCard({
   product: UIProduct;
   index: number;
 }) {
+  const t = useT();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [cartPending, startCart] = useTransition();
@@ -54,7 +50,7 @@ export function ProductCard({
         router.refresh();
         setTimeout(() => setCartAdded(false), 1500);
       } else {
-        setErr(errorText[res.error ?? ""] ?? "Có lỗi, thử lại.");
+        setErr(res.error ? t(`err.${res.error}`) : t("err.generic"));
         setTimeout(() => setErr(null), 3500);
       }
     });
@@ -62,7 +58,7 @@ export function ProductCard({
 
   function buy() {
     if (out || pending) return;
-    if (!confirm(`Mua "${product.name}" với giá $${product.price.toFixed(2)}?\nSố dư của bạn sẽ bị trừ.`)) return;
+    if (!confirm(`${product.name} — $${product.price.toFixed(2)}\n${t("product.confirmBuy")}`)) return;
     setErr(null);
     startTransition(async () => {
       const res = await buyProductAction(product.id);
@@ -71,7 +67,7 @@ export function ProductCard({
         router.refresh();
         setTimeout(() => setDone(false), 2200);
       } else {
-        setErr(errorText[res.error] ?? "Có lỗi, thử lại.");
+        setErr(res.error ? t(`err.${res.error}`) : t("err.generic"));
         setTimeout(() => setErr(null), 3500);
       }
     });
@@ -113,7 +109,7 @@ export function ProductCard({
         )}
         {out && (
           <span className="absolute inset-0 grid place-items-center bg-ink-950/70 text-[10px] font-bold uppercase tracking-widest text-muted">
-            Hết hàng
+            {t("common.outOfStock")}
           </span>
         )}
       </div>
@@ -135,10 +131,10 @@ export function ProductCard({
               className="h-1.5 w-1.5 rounded-full"
               style={{ background: out ? "var(--color-muted)" : "var(--color-emerald-soft)" }}
             />
-            {out ? "Out of Stock" : `Còn ${product.stock}`}
+            {out ? t("common.outOfStock") : `${t("common.inStock")} ${product.stock}`}
           </span>
           <span className="rounded-full bg-ink-700/60 px-2 py-0.5 text-muted">
-            Đã bán {product.sold}
+            {t("common.soldCount")} {product.sold}
           </span>
         </div>
 
@@ -162,8 +158,8 @@ export function ProductCard({
               <button
                 disabled={out || cartPending}
                 onClick={addCart}
-                aria-label="Thêm vào giỏ"
-                title="Thêm vào giỏ"
+                aria-label={t("common.addToCart")}
+                title={t("common.addToCart")}
                 className={`grid h-[34px] w-[34px] place-items-center rounded-lg transition-all duration-200 ${
                   out
                     ? "cursor-not-allowed bg-ink-700/60 text-muted"
@@ -194,15 +190,15 @@ export function ProductCard({
               >
                 {pending ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Đang xử lý
+                    <Loader2 className="h-4 w-4 animate-spin" /> {t("common.processing")}
                   </>
                 ) : done ? (
                   <>
-                    <Check className="h-4 w-4" /> Đã mua
+                    <Check className="h-4 w-4" /> {t("common.bought")}
                   </>
                 ) : (
                   <>
-                    <ShoppingCart className="h-4 w-4" /> Mua ngay
+                    <ShoppingCart className="h-4 w-4" /> {t("common.buyNow")}
                   </>
                 )}
               </button>
