@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { statusLabel } from "@/lib/deposit-config";
 import { CopyField } from "@/components/deposit/CopyField";
+import { DepositWatcher } from "@/components/deposit/DepositWatcher";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +33,7 @@ export default async function DepositOrderPage({
   const t = await getT();
   const cls = statusLabel(order.status).cls;
   const sendStr =
-    order.symbol === "USDT" ? order.cryptoAmount.toFixed(2) : order.cryptoAmount.toFixed(6);
+    order.symbol === "USDT" ? order.cryptoAmount.toFixed(4) : order.cryptoAmount.toFixed(6);
 
   return (
     <div className="mx-auto max-w-xl space-y-5">
@@ -63,11 +64,12 @@ export default async function DepositOrderPage({
             </div>
 
             <CopyField label={`${t("deposit.walletAddr")} (${order.network})`} value={order.address} />
-            <CopyField label={t("deposit.memo")} value={me.name} />
 
             <div className="rounded-xl bg-gold-500/8 p-3 text-xs ring-1 ring-gold-500/20">
               <p className="text-parchment-dim">⏳ {t("deposit.waitNote")} ({order.network})</p>
             </div>
+
+            <DepositWatcher code={order.code} />
           </>
         )}
 

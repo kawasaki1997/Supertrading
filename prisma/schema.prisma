@@ -92,6 +92,7 @@ model DepositOrder {
   address      String
   status       String    @default("PENDING") // PENDING | COMPLETED | REJECTED
   note         String?
+  txHash       String?   @unique // giao dịch on-chain đã khớp (chống cộng trùng)
   createdAt    DateTime  @default(now())
   confirmedAt  DateTime?
 }
