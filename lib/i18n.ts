@@ -42,6 +42,58 @@ const vi: Dict = {
   "nav.logout": "Đăng xuất",
   "role.customer": "Khách hàng",
   "role.admin": "Quản trị",
+  "search.title": "Tìm kiếm",
+  "search.resultsFor": "Kết quả cho",
+  "search.noResults": "Không tìm thấy sản phẩm nào.",
+  "search.prompt": "Nhập từ khóa để tìm sản phẩm.",
+  "search.count": "kết quả",
+
+  // transactions
+  "tx.title": "Giao dịch",
+  "tx.sub": "Lịch sử biến động số dư của bạn",
+  "tx.empty": "Chưa có giao dịch nào.",
+  "tx.deposit": "Nạp tiền",
+  "tx.purchase": "Mua hàng",
+  "tx.colType": "Loại",
+  "tx.colDesc": "Nội dung",
+  "tx.colAmount": "Số tiền",
+  "tx.colTime": "Thời gian",
+
+  // complaints
+  "complaints.title": "Khiếu nại của tôi",
+  "complaints.sub": "Các báo lỗi / khiếu nại bạn đã gửi",
+  "complaints.empty": "Bạn chưa gửi khiếu nại nào.",
+  "complaints.note": "Để báo lỗi một đơn hàng, mở chi tiết đơn và bấm “Gửi báo lỗi”.",
+  "complaints.order": "Đơn",
+  "complaints.resolved": "Đã xử lý",
+  "complaints.pending": "Đang chờ",
+  "complaints.adminReply": "Phản hồi của admin",
+
+  // notifications
+  "notif.title": "Thông báo",
+  "notif.empty": "Bạn chưa có thông báo nào.",
+
+  // support
+  "support.title": "Hỗ trợ",
+  "support.sub": "Gửi tin nhắn cho đội ngũ hỗ trợ",
+  "support.message": "Nội dung cần hỗ trợ",
+  "support.placeholder": "Bạn cần giúp gì?",
+  "support.send": "Gửi yêu cầu",
+  "support.sent": "Đã gửi! Đội ngũ hỗ trợ sẽ phản hồi sớm nhất.",
+  "support.contact": "Hoặc liên hệ qua Discord (sắp có).",
+  "support.orderIssue": "Lỗi đơn hàng? Vào chi tiết đơn và bấm “Gửi báo lỗi” để xử lý nhanh hơn.",
+
+  // guide
+  "guide.title": "Hướng dẫn",
+  "guide.sub": "Câu hỏi thường gặp",
+  "guide.q1": "Làm sao để nạp tiền?",
+  "guide.a1": "Vào Nạp tiền, chọn USDT (BEP-20) hoặc Litecoin, nhập số tiền, tạo lệnh nạp và chuyển crypto tới địa chỉ hiển thị. Số dư được cộng sau khi admin xác nhận.",
+  "guide.q2": "Làm sao để mua hàng?",
+  "guide.a2": "Đảm bảo có đủ số dư, bấm “Mua ngay” trên sản phẩm hoặc thêm vào giỏ rồi thanh toán. Tiền sẽ trừ vào số dư.",
+  "guide.q3": "Nhận dữ liệu tài khoản ở đâu?",
+  "guide.a3": "Sau khi mua, vào Đơn hàng → mở đơn để xem dữ liệu tài khoản và tải về.",
+  "guide.q4": "Hàng bị lỗi thì sao?",
+  "guide.a4": "Mở chi tiết đơn và bấm “Gửi báo lỗi” để gửi khiếu nại. Admin sẽ xử lý.",
 
   // hero
   "hero.badge": "Roblox Marketplace",
@@ -72,6 +124,13 @@ const vi: Dict = {
   "footer.colSupport": "Hỗ trợ",
   "footer.colCommunity": "Cộng đồng",
   "footer.rights": "Đã đăng ký bản quyền.",
+  "footer.accounts": "Tài khoản",
+  "footer.raidService": "Dịch vụ Raid",
+  "footer.howToBuy": "Hướng dẫn mua",
+  "footer.warranty": "Chính sách bảo hành",
+  "footer.complaints": "Khiếu nại",
+  "footer.contact": "Liên hệ",
+  "footer.reviews": "Đánh giá",
 
   // auth
   "auth.createAccount": "Tạo tài khoản",
@@ -270,6 +329,58 @@ const en: Dict = {
   "nav.logout": "Log out",
   "role.customer": "Customer",
   "role.admin": "Admin",
+  "search.title": "Search",
+  "search.resultsFor": "Results for",
+  "search.noResults": "No products found.",
+  "search.prompt": "Type a keyword to search products.",
+  "search.count": "results",
+
+  // transactions
+  "tx.title": "Transactions",
+  "tx.sub": "Your balance change history",
+  "tx.empty": "No transactions yet.",
+  "tx.deposit": "Deposit",
+  "tx.purchase": "Purchase",
+  "tx.colType": "Type",
+  "tx.colDesc": "Detail",
+  "tx.colAmount": "Amount",
+  "tx.colTime": "Time",
+
+  // complaints
+  "complaints.title": "My complaints",
+  "complaints.sub": "Reports / complaints you've submitted",
+  "complaints.empty": "You haven't submitted any complaints.",
+  "complaints.note": "To report an order issue, open the order detail and click “Send report”.",
+  "complaints.order": "Order",
+  "complaints.resolved": "Resolved",
+  "complaints.pending": "Pending",
+  "complaints.adminReply": "Admin reply",
+
+  // notifications
+  "notif.title": "Notifications",
+  "notif.empty": "You have no notifications yet.",
+
+  // support
+  "support.title": "Support",
+  "support.sub": "Send a message to our support team",
+  "support.message": "How can we help?",
+  "support.placeholder": "What do you need help with?",
+  "support.send": "Send request",
+  "support.sent": "Sent! Our team will reply as soon as possible.",
+  "support.contact": "Or reach us on Discord (coming soon).",
+  "support.orderIssue": "Order issue? Open the order detail and click “Send report” for faster handling.",
+
+  // guide
+  "guide.title": "Guide",
+  "guide.sub": "Frequently asked questions",
+  "guide.q1": "How do I deposit?",
+  "guide.a1": "Go to Deposit, choose USDT (BEP-20) or Litecoin, enter the amount, create the order and send crypto to the address shown. Your balance is credited after admin confirmation.",
+  "guide.q2": "How do I buy?",
+  "guide.a2": "Make sure you have enough balance, click “Buy now” on a product or add to cart and checkout. The amount is deducted from your balance.",
+  "guide.q3": "Where do I get the account data?",
+  "guide.a3": "After purchase, go to Orders → open the order to view the account data and download it.",
+  "guide.q4": "What if the item is faulty?",
+  "guide.a4": "Open the order detail and click “Send report” to file a complaint. Admin will handle it.",
 
   "hero.badge": "Roblox Marketplace",
   "hero.tagline": "Premium game items & accounts — instant delivery, 100% safe, best prices on the market.",
@@ -296,6 +407,13 @@ const en: Dict = {
   "footer.colSupport": "Support",
   "footer.colCommunity": "Community",
   "footer.rights": "All rights reserved.",
+  "footer.accounts": "Accounts",
+  "footer.raidService": "Raid Service",
+  "footer.howToBuy": "How to buy",
+  "footer.warranty": "Warranty policy",
+  "footer.complaints": "Complaints",
+  "footer.contact": "Contact",
+  "footer.reviews": "Reviews",
 
   "auth.createAccount": "Create account",
   "auth.registerSub": "Sign up to buy, top up and track orders",

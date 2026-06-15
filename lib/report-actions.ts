@@ -30,3 +30,19 @@ export async function submitReportAction(formData: FormData) {
   revalidatePath("/admin/reports");
   redirect(`/don-hang/${orderCode}?reported=1`);
 }
+
+/** Khách gửi yêu cầu hỗ trợ chung (không gắn đơn) → tạo khiếu nại cho admin. */
+export async function submitSupportAction(formData: FormData) {
+  const me = await getCurrentUser();
+  if (!me) redirect("/dang-nhap");
+
+  const message = String(formData.get("message") ?? "").trim();
+  if (!message) redirect("/ho-tro?error=empty");
+
+  await prisma.report.create({
+    data: { userId: me.id, orderId: null, orderCode: null, message },
+  });
+
+  revalidatePath("/admin/reports");
+  redirect("/ho-tro?sent=1");
+}

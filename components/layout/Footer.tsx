@@ -16,9 +16,9 @@ export async function Footer() {
         </div>
 
         {[
-          { h: t("footer.colShop"), links: ["Robux", "Blox Fruits", "Tài khoản", "Dịch vụ Raid"] },
-          { h: t("footer.colSupport"), links: ["Hướng dẫn mua", "Chính sách bảo hành", "Khiếu nại", "Liên hệ"] },
-          { h: t("footer.colCommunity"), links: ["Discord", "Facebook", "TikTok", "Đánh giá"] },
+          { h: t("footer.colShop"), links: ["Robux", "Blox Fruits", t("footer.accounts"), t("footer.raidService")] },
+          { h: t("footer.colSupport"), links: [t("footer.howToBuy"), t("footer.warranty"), t("footer.complaints"), t("footer.contact")] },
+          { h: t("footer.colCommunity"), links: ["Discord", "Facebook", "TikTok", t("footer.reviews")] },
         ].map((col) => (
           <div key={col.h}>
             <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-gold-400">

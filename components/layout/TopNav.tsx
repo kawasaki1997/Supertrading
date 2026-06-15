@@ -34,11 +34,11 @@ const nav: NavItem[] = [
   { key: "nav.shop", icon: Store, href: "/" },
   { key: "nav.deposit", icon: Wallet, href: "/nap-tien" },
   { key: "nav.orders", icon: ScrollText, href: "/don-hang" },
-  { key: "nav.complaints", icon: AlertTriangle },
-  { key: "nav.transactions", icon: History },
-  { key: "nav.notifications", icon: Bell, badge: 3 },
-  { key: "nav.support", icon: MessageSquare },
-  { key: "nav.guide", icon: BookOpen },
+  { key: "nav.complaints", icon: AlertTriangle, href: "/khieu-nai" },
+  { key: "nav.transactions", icon: History, href: "/giao-dich" },
+  { key: "nav.notifications", icon: Bell, href: "/thong-bao" },
+  { key: "nav.support", icon: MessageSquare, href: "/ho-tro" },
+  { key: "nav.guide", icon: BookOpen, href: "/huong-dan" },
 ];
 
 export function TopNav({
@@ -62,15 +62,16 @@ export function TopNav({
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <Brand href="/" />
 
-        <div className="group relative ml-2 hidden flex-1 md:block">
+        <form action="/tim-kiem" className="group relative ml-2 hidden flex-1 md:block">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted transition-colors group-focus-within:text-gold-400" />
           <input
             type="text"
+            name="q"
             placeholder={t("nav.searchPlaceholder")}
             aria-label={t("nav.searchPlaceholder")}
             className="h-10 w-full rounded-xl border border-gold-500/12 bg-ink-800/70 pl-11 pr-4 text-sm text-parchment placeholder:text-muted outline-none transition-all duration-200 focus:border-gold-500/40 focus:bg-ink-800 focus:[box-shadow:0_0_0_3px_color-mix(in_srgb,var(--color-gold-500)_15%,transparent)]"
           />
-        </div>
+        </form>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-2.5">
           <LangSwitch />
@@ -237,15 +238,16 @@ export function TopNav({
             className="overflow-hidden border-t border-gold-500/10 lg:hidden"
           >
             <div className="space-y-1 px-4 py-4">
-              <div className="group relative mb-3">
+              <form action="/tim-kiem" onSubmit={() => setMobileOpen(false)} className="group relative mb-3">
                 <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />
                 <input
                   type="text"
+                  name="q"
                   placeholder={t("nav.searchPlaceholder")}
                   aria-label={t("nav.searchPlaceholder")}
                   className="h-10 w-full rounded-xl border border-gold-500/12 bg-ink-800/70 pl-11 pr-4 text-sm text-parchment placeholder:text-muted outline-none focus:border-gold-500/40"
                 />
-              </div>
+              </form>
 
               {user && (
                 <Link
