@@ -5,7 +5,7 @@ import { getT } from "@/lib/i18n";
 import { submitSupportAction } from "@/lib/report-actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Hỗ trợ — Super Trading" };
+export const metadata = { title: "Support — Super Trading" };
 
 export default async function SupportPage({
   searchParams,

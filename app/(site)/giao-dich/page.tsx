@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/session";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Giao dịch — Super Trading" };
+export const metadata = { title: "Transactions — Super Trading" };
 
 type Tx = {
   id: string;

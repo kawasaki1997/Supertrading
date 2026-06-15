@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { resolveReportAction } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Báo lỗi / Khiếu nại — Quản trị" };
+export const metadata = { title: "Reports & Complaints — Admin" };
 
 export default async function AdminReportsPage() {
   const reports = await prisma.report.findMany({

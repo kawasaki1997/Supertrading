@@ -7,7 +7,7 @@ import { CartView } from "@/components/cart/CartView";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Giỏ hàng — Super Trading" };
+export const metadata = { title: "Cart — Super Trading" };
 
 export default async function CartPage() {
   const me = await getCurrentUser();

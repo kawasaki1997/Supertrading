@@ -8,7 +8,7 @@ import { CopyField } from "@/components/deposit/CopyField";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Chi tiết lệnh nạp — Super Trading" };
+export const metadata = { title: "Deposit Details — Super Trading" };
 
 const statusKey: Record<string, string> = {
   PENDING: "deposit.statusPending",

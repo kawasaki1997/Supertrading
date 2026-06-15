@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
+import { useT } from "@/components/i18n/LangProvider";
 
 export function CopyField({ label, value }: { label: string; value: string }) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
 
   return (
@@ -25,7 +27,7 @@ export function CopyField({ label, value }: { label: string; value: string }) {
           }`}
         >
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          {copied ? "Đã chép" : "Chép"}
+          {copied ? t("order.copied") : t("common.copy")}
         </button>
       </div>
     </div>

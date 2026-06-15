@@ -2,7 +2,7 @@ import { Lock } from "lucide-react";
 import { Brand } from "@/components/brand/DragonLogo";
 import { loginAction } from "../actions";
 
-export const metadata = { title: "Đăng nhập quản trị — Super Trading" };
+export const metadata = { title: "Admin Login — Super Trading" };
 
 export default async function LoginPage({
   searchParams,

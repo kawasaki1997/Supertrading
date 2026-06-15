@@ -8,7 +8,7 @@ import { submitReportAction } from "@/lib/report-actions";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Chi tiết đơn hàng — Super Trading" };
+export const metadata = { title: "Order Details — Super Trading" };
 
 export default async function OrderDetailPage({
   params,

@@ -8,7 +8,7 @@ import { DepositForm } from "@/components/deposit/DepositForm";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Nạp tiền — Super Trading" };
+export const metadata = { title: "Deposit — Super Trading" };
 
 const statusKey: Record<string, string> = {
   PENDING: "deposit.statusPending",

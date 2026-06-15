@@ -6,7 +6,7 @@ import { getNotifications, markAllRead } from "@/lib/notify";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Thông báo — Super Trading" };
+export const metadata = { title: "Notifications — Super Trading" };
 
 const ICONS = { DEPOSIT: Wallet, ORDER: PackageCheck, REPORT: ShieldCheck } as const;
 

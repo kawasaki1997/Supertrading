@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Bảng điều khiển — Super Trading" };
+export const metadata = { title: "Dashboard — Super Trading" };
 
 export default async function AdminPage() {
   const [categories, stockCounts] = await Promise.all([

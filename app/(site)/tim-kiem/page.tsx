@@ -4,7 +4,7 @@ import { getT } from "@/lib/i18n";
 import { ProductCard } from "@/components/sections/ProductCard";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Tìm kiếm — Super Trading" };
+export const metadata = { title: "Search — Super Trading" };
 
 export default async function SearchPage({
   searchParams,

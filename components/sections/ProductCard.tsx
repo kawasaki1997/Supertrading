@@ -64,8 +64,8 @@ export function ProductCard({
       const res = await buyProductAction(product.id);
       if (res.ok) {
         setDone(true);
-        router.refresh();
-        setTimeout(() => setDone(false), 2200);
+        // Đưa khách thẳng tới trang đơn hàng để nhận dữ liệu tài khoản ngay
+        router.push(`/don-hang/${res.code}`);
       } else {
         setErr(res.error ? t(`err.${res.error}`) : t("err.generic"));
         setTimeout(() => setErr(null), 3500);

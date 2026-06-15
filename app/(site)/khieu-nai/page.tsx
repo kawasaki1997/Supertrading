@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/session";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Khiếu nại — Super Trading" };
+export const metadata = { title: "Complaints — Super Trading" };
 
 export default async function ComplaintsPage() {
   const me = await getCurrentUser();

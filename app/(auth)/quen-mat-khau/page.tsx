@@ -3,7 +3,7 @@ import { Mail, MailCheck } from "lucide-react";
 import { requestPasswordResetAction } from "@/lib/user-actions";
 import { getT } from "@/lib/i18n";
 
-export const metadata = { title: "Quên mật khẩu — Super Trading" };
+export const metadata = { title: "Forgot Password — Super Trading" };
 
 const inputCls =
   "h-11 w-full rounded-xl border border-gold-500/15 bg-ink-800/70 pl-11 pr-4 text-sm text-parchment placeholder:text-muted outline-none transition-all focus:border-gold-500/40 focus:[box-shadow:0_0_0_3px_color-mix(in_srgb,var(--color-gold-500)_15%,transparent)]";

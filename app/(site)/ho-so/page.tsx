@@ -6,7 +6,7 @@ import { updateProfileAction, changePasswordAction } from "@/lib/user-actions";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Hồ sơ của tôi — Super Trading" };
+export const metadata = { title: "My Profile — Super Trading" };
 
 const flashKey: Record<string, { ok?: boolean; key: string }> = {
   profile: { ok: true, key: "profile.okProfile" },

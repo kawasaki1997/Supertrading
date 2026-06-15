@@ -3,7 +3,7 @@ import { User, Mail, Lock } from "lucide-react";
 import { registerAction } from "@/lib/user-actions";
 import { getT } from "@/lib/i18n";
 
-export const metadata = { title: "Đăng ký — Super Trading" };
+export const metadata = { title: "Sign Up — Super Trading" };
 
 const errKey: Record<string, string> = {
   missing: "auth.regMissing",

@@ -2,7 +2,7 @@ import { BookOpen, HelpCircle } from "lucide-react";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Hướng dẫn — Super Trading" };
+export const metadata = { title: "Guide — Super Trading" };
 
 export default async function GuidePage() {
   const t = await getT();

@@ -4,7 +4,7 @@ import { statusLabel } from "@/lib/deposit-config";
 import { approveDepositAction, rejectDepositAction } from "@/lib/deposit-actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Lệnh nạp tiền — Quản trị" };
+export const metadata = { title: "Deposits — Admin" };
 
 export default async function AdminDepositsPage() {
   const orders = await prisma.depositOrder.findMany({

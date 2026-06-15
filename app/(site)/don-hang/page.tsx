@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/session";
 import { getT } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Đơn hàng của tôi — Super Trading" };
+export const metadata = { title: "My Orders — Super Trading" };
 
 export default async function OrdersPage({
   searchParams,
