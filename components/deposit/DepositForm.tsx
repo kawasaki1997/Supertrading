@@ -21,9 +21,13 @@ export function DepositForm({ methods }: { methods: MethodOption[] }) {
   const [amount, setAmount] = useState(5);
 
   const selected = methods.find((m) => m.key === method) ?? methods[0];
+  const isVnd = selected?.symbol === "VND";
   const send = selected ? amount / selected.usdPerUnit : 0;
-  const sendStr =
-    selected?.symbol === "USDT" ? send.toFixed(2) : send.toFixed(6);
+  const sendStr = isVnd
+    ? Math.round(send).toLocaleString("vi-VN") + "đ"
+    : selected?.symbol === "USDT"
+      ? send.toFixed(2)
+      : send.toFixed(6);
 
   return (
     <form action={createDepositAction} className="space-y-6">
@@ -55,7 +59,9 @@ export function DepositForm({ methods }: { methods: MethodOption[] }) {
         </div>
         {selected && (
           <p className="mt-2 text-xs text-muted">
-            {t("deposit.rate")}: 1 {selected.symbol} = ${selected.usdPerUnit.toLocaleString("en-US")}
+            {isVnd
+              ? `1 USD = ${Math.round(1 / selected.usdPerUnit).toLocaleString("vi-VN")} VND`
+              : `${t("deposit.rate")}: 1 ${selected.symbol} = $${selected.usdPerUnit.toLocaleString("en-US")}`}
           </p>
         )}
       </div>
@@ -107,7 +113,7 @@ export function DepositForm({ methods }: { methods: MethodOption[] }) {
         <div className="flex items-center justify-between text-sm">
           <span className="text-parchment-dim">{t("deposit.needSend")}:</span>
           <span className="font-display font-bold text-parchment">
-            {sendStr} {selected?.symbol}
+            {sendStr}{isVnd ? "" : ` ${selected?.symbol}`}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm">

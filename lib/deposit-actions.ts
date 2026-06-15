@@ -44,7 +44,9 @@ export async function createDepositAction(formData: FormData) {
   if (!Number.isFinite(amountUsd) || amountUsd < 1) redirect("/nap-tien?error=amount");
 
   const base = amountUsd / method.usdPerUnit;
-  const cryptoAmount = await uniqueCryptoAmount(method, base);
+  // Bank khớp bằng nội dung CK (không cần số lẻ) → làm tròn VND. Crypto khớp bằng số tiền độc nhất.
+  const cryptoAmount =
+    method.key === "BANK" ? Math.round(base) : await uniqueCryptoAmount(method, base);
 
   const order = await prisma.depositOrder.create({
     data: {
@@ -74,6 +76,9 @@ export async function checkDepositAction(code: string): Promise<CheckResult> {
   const order = await prisma.depositOrder.findUnique({ where: { code } });
   if (!order || order.userId !== me.id) return { status: "PENDING" };
   if (order.status !== "PENDING") return { status: order.status };
+
+  // Bank: tiền vào do webhook SePay tự cộng → action chỉ đọc trạng thái hiện tại.
+  if (order.method === "BANK") return { status: order.status };
 
   let txs;
   try {
