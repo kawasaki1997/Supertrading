@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShoppingCart, Check, Gem, Loader2, Plus, X, Hand } from "lucide-react";
+import { ShoppingCart, Check, Gem, Loader2, Plus, Minus, X, Hand } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { UIProduct } from "@/lib/types";
@@ -40,15 +40,20 @@ export function ProductCard({
   const [buyModal, setBuyModal] = useState(false);
   const [gameUsername, setGameUsername] = useState("");
   const [gameNote, setGameNote] = useState("");
+  const [qty, setQty] = useState(1);
   const out = product.stock === 0;
   const manual = product.deliveryType === "MANUAL";
   const tint = tints[index % tints.length];
+
+  function setQtyClamped(n: number) {
+    setQty(Math.max(1, Math.min(n, product.stock || 1)));
+  }
 
   function addCart() {
     if (out || cartPending) return;
     setErr(null);
     startCart(async () => {
-      const res = await addToCartAction(product.id);
+      const res = await addToCartAction(product.id, qty);
       if (res.ok) {
         setCartAdded(true);
         router.refresh();
@@ -68,7 +73,7 @@ export function ProductCard({
       setBuyModal(true);
       return;
     }
-    if (!confirm(`${product.name} — $${product.price.toFixed(2)}\n${t("product.confirmBuy")}`)) return;
+    if (!confirm(`${product.name} ×${qty} — $${(product.price * qty).toFixed(2)}\n${t("product.confirmBuy")}`)) return;
     doBuy();
   }
 
@@ -77,7 +82,7 @@ export function ProductCard({
     startTransition(async () => {
       const res = await buyProductAction(
         product.id,
-        manual ? { gameUsername, gameNote } : {},
+        manual ? { gameUsername, gameNote, qty } : { qty },
       );
       if (res.ok) {
         setDone(true);
@@ -161,6 +166,39 @@ export function ProductCard({
             </span>
           )}
         </div>
+
+        {!out && (
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-[11px] text-muted">{t("common.quantity")}</span>
+            <div className="flex items-center gap-0.5 rounded-lg border border-gold-500/15 bg-ink-800/70 p-0.5">
+              <button
+                type="button"
+                onClick={() => setQtyClamped(qty - 1)}
+                disabled={qty <= 1}
+                aria-label="-"
+                className="grid h-6 w-6 cursor-pointer place-items-center rounded-md text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Minus className="h-3 w-3" />
+              </button>
+              <input
+                value={qty}
+                onChange={(e) => setQtyClamped(parseInt(e.target.value.replace(/\D/g, ""), 10) || 1)}
+                inputMode="numeric"
+                aria-label={t("common.quantity")}
+                className="w-9 bg-transparent text-center text-sm font-semibold text-parchment outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setQtyClamped(qty + 1)}
+                disabled={qty >= product.stock}
+                aria-label="+"
+                className="grid h-6 w-6 cursor-pointer place-items-center rounded-md text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mt-auto">
           {err && (
@@ -246,7 +284,10 @@ export function ProductCard({
               <h3 className="font-display text-lg font-bold text-parchment">{t("buy.title")}</h3>
               <p className="mt-0.5 font-serif text-sm text-parchment-dim">
                 {product.name} —{" "}
-                <span className="font-bold text-gold-300">${product.price.toFixed(2)}</span>
+                <span className="font-bold text-gold-300">${(product.price * qty).toFixed(2)}</span>
+                {qty > 1 && (
+                  <span className="text-muted"> ({qty} × ${product.price.toFixed(2)})</span>
+                )}
               </p>
             </div>
             <button
@@ -271,6 +312,35 @@ export function ProductCard({
             }}
             className="space-y-3"
           >
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-parchment-dim">
+                {t("common.quantity")}
+              </label>
+              <div className="flex w-fit items-center gap-1 rounded-lg border border-gold-500/15 bg-ink-800/70 p-1">
+                <button
+                  type="button"
+                  onClick={() => setQtyClamped(qty - 1)}
+                  disabled={qty <= 1}
+                  className="grid h-7 w-7 cursor-pointer place-items-center rounded-md text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <input
+                  value={qty}
+                  onChange={(e) => setQtyClamped(parseInt(e.target.value.replace(/\D/g, ""), 10) || 1)}
+                  inputMode="numeric"
+                  className="w-12 bg-transparent text-center text-sm font-semibold text-parchment outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setQtyClamped(qty + 1)}
+                  disabled={qty >= product.stock}
+                  className="grid h-7 w-7 cursor-pointer place-items-center rounded-md text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
             <div>
               <label className="mb-1 block text-xs font-semibold text-parchment-dim">
                 {t("buy.gameUsername")} *

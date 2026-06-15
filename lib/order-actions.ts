@@ -11,7 +11,7 @@ export type BuyResult =
   | { ok: true; code: string }
   | { ok: false; error: "unavailable" | "stock" | "balance" | "username" };
 
-export type BuyExtra = { gameUsername?: string; gameNote?: string };
+export type BuyExtra = { gameUsername?: string; gameNote?: string; qty?: number };
 
 function genCode() {
   return "DH" + randomBytes(4).toString("hex").toUpperCase();
@@ -32,13 +32,18 @@ export async function buyProductAction(
   if (!product || !product.active) return { ok: false, error: "unavailable" };
   if (product.stock <= 0) return { ok: false, error: "stock" };
 
+  // Số lượng: tối thiểu 1, tối đa tồn kho hiện có.
+  const qty = Math.max(1, Math.min(Math.floor(extra.qty ?? 1), product.stock));
+
   const manual = product.deliveryType === "MANUAL";
   const gameUsername = (extra.gameUsername ?? "").trim();
   const gameNote = (extra.gameNote ?? "").trim() || null;
   if (manual && !gameUsername) return { ok: false, error: "username" };
 
+  const total = Math.round(product.price * qty * 100) / 100;
+
   const user = await prisma.user.findUnique({ where: { id: me.id } });
-  if (!user || user.balance < product.price) return { ok: false, error: "balance" };
+  if (!user || user.balance < total) return { ok: false, error: "balance" };
 
   const code = genCode();
   await prisma.$transaction(async (tx) => {
@@ -47,7 +52,7 @@ export async function buyProductAction(
       ? []
       : await tx.stockItem.findMany({
           where: { productId: product.id, status: "AVAILABLE" },
-          take: 1,
+          take: qty,
           orderBy: { createdAt: "asc" },
         });
     const delivered = items.map((s) => s.content).join("\n") || null;
@@ -59,14 +64,14 @@ export async function buyProductAction(
         productId: product.id,
         productName: product.name,
         price: product.price,
-        qty: 1,
-        total: product.price,
+        qty,
+        total,
         deliveryType: manual ? "MANUAL" : "AUTO",
         status: manual ? "PENDING" : "COMPLETED",
         gameUsername: manual ? gameUsername : null,
         gameNote: manual ? gameNote : null,
         deliveredContent: delivered,
-        delivered: !manual && !!delivered,
+        delivered: !manual && items.length >= qty && items.length > 0,
       },
     });
     if (items.length) {
@@ -75,10 +80,10 @@ export async function buyProductAction(
         data: { status: "SOLD", orderId: order.id },
       });
     }
-    await tx.user.update({ where: { id: user.id }, data: { balance: { decrement: product.price } } });
+    await tx.user.update({ where: { id: user.id }, data: { balance: { decrement: total } } });
     await tx.product.update({
       where: { id: product.id },
-      data: { stock: { decrement: 1 }, sold: { increment: 1 } },
+      data: { stock: { decrement: qty }, sold: { increment: qty } },
     });
   });
 

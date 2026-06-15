@@ -13,7 +13,10 @@ function genCode() {
 
 export type CartResult = { ok: boolean; error?: string; count?: number };
 
-export async function addToCartAction(productId: string): Promise<CartResult> {
+export async function addToCartAction(
+  productId: string,
+  qty: number = 1,
+): Promise<CartResult> {
   const me = await getCurrentUser();
   if (!me) redirect("/dang-nhap");
 
@@ -22,14 +25,15 @@ export async function addToCartAction(productId: string): Promise<CartResult> {
     return { ok: false, error: "unavailable" };
   }
 
+  const addQty = Math.max(1, Math.min(Math.floor(qty) || 1, product.stock));
   const existing = await prisma.cartItem.findUnique({
     where: { userId_productId: { userId: me.id, productId } },
   });
-  const nextQty = Math.min((existing?.qty ?? 0) + 1, product.stock);
+  const nextQty = Math.min((existing?.qty ?? 0) + addQty, product.stock);
 
   await prisma.cartItem.upsert({
     where: { userId_productId: { userId: me.id, productId } },
-    create: { userId: me.id, productId, qty: 1 },
+    create: { userId: me.id, productId, qty: addQty },
     update: { qty: nextQty },
   });
 
