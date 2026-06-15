@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { prisma, withRetry } from "@/lib/db";
 import { signIn, signOut, isAuthed } from "@/lib/auth";
 import { uploadImage } from "@/lib/storage";
 import { createNotification } from "@/lib/notify";
@@ -57,11 +57,18 @@ export async function saveProduct(formData: FormData) {
 
   if (!data.name || !data.categoryId) redirect("/admin?error=missing");
 
-  if (id) {
-    await prisma.product.update({ where: { id }, data });
-  } else {
-    await prisma.product.create({ data });
+  let failed = false;
+  try {
+    await withRetry(() =>
+      id
+        ? prisma.product.update({ where: { id }, data })
+        : prisma.product.create({ data }),
+    );
+  } catch (e) {
+    console.error("[saveProduct] lưu thất bại:", e);
+    failed = true;
   }
+  if (failed) redirect("/admin?error=save");
 
   revalidatePath("/");
   revalidatePath("/admin");
@@ -106,11 +113,18 @@ export async function saveCategory(formData: FormData) {
   });
   if (clash) slug = `${slug}-${Math.random().toString(36).slice(2, 5)}`;
 
-  if (id) {
-    await prisma.category.update({ where: { id }, data: { title, subtitle, slug, order } });
-  } else {
-    await prisma.category.create({ data: { title, subtitle, slug, order } });
+  let failed = false;
+  try {
+    await withRetry(() =>
+      id
+        ? prisma.category.update({ where: { id }, data: { title, subtitle, slug, order } })
+        : prisma.category.create({ data: { title, subtitle, slug, order } }),
+    );
+  } catch (e) {
+    console.error("[saveCategory] lưu thất bại:", e);
+    failed = true;
   }
+  if (failed) redirect("/admin?error=save");
 
   revalidatePath("/");
   revalidatePath("/admin");
@@ -139,18 +153,27 @@ export async function addStockAction(formData: FormData) {
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
 
+  let failed = false;
   if (lines.length > 0) {
-    await prisma.$transaction([
-      prisma.stockItem.createMany({
-        data: lines.map((content) => ({ productId, content })),
-      }),
-      // tăng tồn kho hiển thị theo số lượng vừa nhập
-      prisma.product.update({
-        where: { id: productId },
-        data: { stock: { increment: lines.length } },
-      }),
-    ]);
+    try {
+      await withRetry(() =>
+        prisma.$transaction([
+          prisma.stockItem.createMany({
+            data: lines.map((content) => ({ productId, content })),
+          }),
+          // tăng tồn kho hiển thị theo số lượng vừa nhập
+          prisma.product.update({
+            where: { id: productId },
+            data: { stock: { increment: lines.length } },
+          }),
+        ]),
+      );
+    } catch (e) {
+      console.error("[addStock] lưu thất bại:", e);
+      failed = true;
+    }
   }
+  if (failed) redirect("/admin?error=save");
 
   revalidatePath("/");
   revalidatePath("/admin");

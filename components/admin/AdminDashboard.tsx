@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
+import { useSearchParams } from "next/navigation";
 import {
   Plus,
   Pencil,
@@ -10,6 +12,9 @@ import {
   FolderTree,
   ImageIcon,
   Boxes,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import {
   saveProduct,
@@ -67,6 +72,8 @@ export function AdminDashboard({ categories }: { categories: AdminCategory[] }) 
 
   return (
     <div className="space-y-10">
+      <AdminToast />
+
       {/* Page heading */}
       <div>
         <h1 className="font-display text-2xl font-bold tracking-wide text-gold-grad">
@@ -510,14 +517,51 @@ function Modal({
 }
 
 function ModalActions() {
+  const { pending } = useFormStatus();
   return (
     <div className="flex justify-end gap-2 pt-2">
       <button
         type="submit"
-        className="cursor-pointer rounded-lg bg-gradient-to-b from-gold-300 to-gold-600 px-5 py-2.5 text-sm font-bold text-ink-950 transition-all hover:from-gold-200 hover:to-gold-500"
+        disabled={pending}
+        className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-gradient-to-b from-gold-300 to-gold-600 px-5 py-2.5 text-sm font-bold text-ink-950 transition-all hover:from-gold-200 hover:to-gold-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Lưu
+        {pending && <Loader2 className="h-4 w-4 animate-spin" />}
+        {pending ? "Đang lưu…" : "Lưu"}
       </button>
+    </div>
+  );
+}
+
+function AdminToast() {
+  const sp = useSearchParams();
+  const ok = sp.get("ok");
+  const error = sp.get("error");
+  if (!ok && !error) return null;
+
+  const okMsg: Record<string, string> = {
+    product: "Đã lưu sản phẩm.",
+    category: "Đã lưu danh mục.",
+    stock: "Đã nhập kho.",
+    deleted: "Đã xóa.",
+  };
+  const errMsg: Record<string, string> = {
+    save: "Lưu thất bại — kết nối chập chờn. Vui lòng bấm Lưu lại lần nữa.",
+    missing: "Thiếu thông tin bắt buộc (tên / danh mục).",
+  };
+
+  const isErr = !!error;
+  const text = isErr ? (errMsg[error!] ?? "Có lỗi xảy ra.") : (okMsg[ok!] ?? "Thành công.");
+
+  return (
+    <div
+      className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium ring-1 ${
+        isErr
+          ? "bg-rose-soft/10 text-rose-soft ring-rose-soft/25"
+          : "bg-emerald-soft/10 text-emerald-soft ring-emerald-soft/25"
+      }`}
+    >
+      {isErr ? <AlertTriangle className="h-4 w-4 shrink-0" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
+      {text}
     </div>
   );
 }
