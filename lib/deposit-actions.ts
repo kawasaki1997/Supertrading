@@ -77,7 +77,7 @@ export async function checkDepositAction(code: string): Promise<CheckResult> {
 
   let txs;
   try {
-    txs = await fetchIncoming(order.method, order.address);
+    txs = await fetchIncoming(order.method, order.address, order.createdAt.getTime());
   } catch (e) {
     console.error("[checkDeposit] đọc blockchain lỗi:", e);
     return { status: "PENDING" };
