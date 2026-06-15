@@ -35,6 +35,7 @@ model Product {
   categoryId String
   order      Int      @default(0)
   active     Boolean  @default(true)
+  deliveryType String @default("AUTO") // AUTO (account/stock tự động) | MANUAL (vật phẩm in-game, giao tay)
   cartItems  CartItem[]
   stockItems StockItem[]
   createdAt  DateTime @default(now())
@@ -117,7 +118,10 @@ model Order {
   price            Float
   qty              Int      @default(1)
   total            Float
-  status           String   @default("COMPLETED")
+  status           String   @default("COMPLETED") // COMPLETED (auto) | PENDING | DELIVERED | CANCELLED (manual)
+  deliveryType     String   @default("AUTO") // AUTO | MANUAL
+  gameUsername     String? // nick game khách nhập (đơn giao tay)
+  gameNote         String? // ghi chú khách (giờ online, link bạn bè...)
   deliveredContent String? // dữ liệu account/item giao cho khách
   delivered        Boolean  @default(false)
   createdAt        DateTime @default(now())

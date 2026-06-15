@@ -35,6 +35,7 @@ export default async function SearchPage({
     sold: p.sold,
     badge: p.badge,
     image: p.image,
+    deliveryType: p.deliveryType,
   }));
 
   return (

@@ -87,9 +87,21 @@ export default async function OrdersPage({
                   <td className="px-4 py-3 font-medium text-parchment">{o.productName}</td>
                   <td className="px-4 py-3 font-semibold text-gold-300">${o.total.toFixed(2)}</td>
                   <td className="px-4 py-3">
-                    <span className="inline-block rounded-full bg-emerald-soft/10 px-2 py-0.5 text-[11px] font-medium text-emerald-soft ring-1 ring-emerald-soft/25">
-                      {t("orders.done")}
-                    </span>
+                    {(() => {
+                      const b =
+                        o.status === "CANCELLED"
+                          ? { text: t("status.cancelled"), cls: "bg-rose-soft/10 text-rose-soft ring-rose-soft/25" }
+                          : o.deliveryType === "MANUAL" && o.status === "PENDING"
+                            ? { text: t("status.processing"), cls: "bg-gold-500/10 text-gold-300 ring-gold-500/25" }
+                            : o.deliveryType === "MANUAL" && o.status === "DELIVERED"
+                              ? { text: t("status.delivered"), cls: "bg-emerald-soft/10 text-emerald-soft ring-emerald-soft/25" }
+                              : { text: t("orders.done"), cls: "bg-emerald-soft/10 text-emerald-soft ring-emerald-soft/25" };
+                      return (
+                        <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${b.cls}`}>
+                          {b.text}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-xs">
                     {new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(o.createdAt)}

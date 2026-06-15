@@ -52,6 +52,7 @@ export async function saveProduct(formData: FormData) {
     categoryId: String(formData.get("categoryId") ?? ""),
     order: num(formData.get("order")) ?? 0,
     active: formData.get("active") === "on",
+    deliveryType: String(formData.get("deliveryType") ?? "") === "MANUAL" ? "MANUAL" : "AUTO",
     ...(image ? { image } : {}),
   };
 
@@ -178,6 +179,67 @@ export async function addStockAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/admin");
   redirect("/admin?ok=stock");
+}
+
+/* --------------------------- manual orders ---------------------------- */
+
+export async function markOrderDeliveredAction(formData: FormData) {
+  await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (id) {
+    const order = await prisma.order.findUnique({ where: { id } });
+    if (order && order.status === "PENDING") {
+      await prisma.order.update({
+        where: { id },
+        data: { status: "DELIVERED", delivered: true },
+      });
+      await createNotification({
+        userId: order.userId,
+        type: "ORDER",
+        text: order.productName,
+        href: `/don-hang/${order.code}`,
+      });
+    }
+  }
+  revalidatePath("/admin/orders");
+  revalidatePath("/don-hang");
+  redirect("/admin/orders?ok=delivered");
+}
+
+/** Hủy đơn giao tay & hoàn toàn bộ tiền về ví khách. */
+export async function cancelOrderAction(formData: FormData) {
+  await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (id) {
+    const order = await prisma.order.findUnique({ where: { id } });
+    if (order && order.status !== "CANCELLED" && order.deliveryType === "MANUAL") {
+      await prisma.$transaction([
+        prisma.order.update({ where: { id }, data: { status: "CANCELLED" } }),
+        prisma.user.update({
+          where: { id: order.userId },
+          data: { balance: { increment: order.total } },
+        }),
+        // trả lại tồn kho hiển thị
+        ...(order.productId
+          ? [
+              prisma.product.update({
+                where: { id: order.productId },
+                data: { stock: { increment: order.qty }, sold: { decrement: order.qty } },
+              }),
+            ]
+          : []),
+      ]);
+      await createNotification({
+        userId: order.userId,
+        type: "ORDER",
+        text: order.productName,
+        href: `/don-hang/${order.code}`,
+      });
+    }
+  }
+  revalidatePath("/admin/orders");
+  revalidatePath("/don-hang");
+  redirect("/admin/orders?ok=cancelled");
 }
 
 /* ----------------------------- reports -------------------------------- */

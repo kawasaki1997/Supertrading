@@ -66,7 +66,9 @@ export async function removeCartItemAction(itemId: string) {
   revalidatePath("/gio-hang");
 }
 
-export async function checkoutAction(): Promise<CartResult> {
+export async function checkoutAction(
+  extra: { gameUsername?: string; gameNote?: string } = {},
+): Promise<CartResult> {
   const me = await getCurrentUser();
   if (!me) redirect("/dang-nhap");
 
@@ -82,6 +84,12 @@ export async function checkoutAction(): Promise<CartResult> {
     }
   }
 
+  // Nếu giỏ có vật phẩm giao tay → bắt buộc nhập nick game (dùng chung cho cả đơn).
+  const hasManual = items.some((it) => it.product.deliveryType === "MANUAL");
+  const gameUsername = (extra.gameUsername ?? "").trim();
+  const gameNote = (extra.gameNote ?? "").trim() || null;
+  if (hasManual && !gameUsername) return { ok: false, error: "username" };
+
   const total =
     Math.round(items.reduce((s, it) => s + it.product.price * it.qty, 0) * 100) / 100;
 
@@ -92,12 +100,15 @@ export async function checkoutAction(): Promise<CartResult> {
     await tx.user.update({ where: { id: me.id }, data: { balance: { decrement: total } } });
 
     for (const it of items) {
-      // giao dữ liệu từ kho (tối đa it.qty item khả dụng)
-      const stock = await tx.stockItem.findMany({
-        where: { productId: it.productId, status: "AVAILABLE" },
-        take: it.qty,
-        orderBy: { createdAt: "asc" },
-      });
+      const manual = it.product.deliveryType === "MANUAL";
+      // giao dữ liệu từ kho (chỉ đơn AUTO, tối đa it.qty item khả dụng)
+      const stock = manual
+        ? []
+        : await tx.stockItem.findMany({
+            where: { productId: it.productId, status: "AVAILABLE" },
+            take: it.qty,
+            orderBy: { createdAt: "asc" },
+          });
       const delivered = stock.map((s) => s.content).join("\n") || null;
 
       const order = await tx.order.create({
@@ -109,8 +120,12 @@ export async function checkoutAction(): Promise<CartResult> {
           price: it.product.price,
           qty: it.qty,
           total: Math.round(it.product.price * it.qty * 100) / 100,
+          deliveryType: manual ? "MANUAL" : "AUTO",
+          status: manual ? "PENDING" : "COMPLETED",
+          gameUsername: manual ? gameUsername : null,
+          gameNote: manual ? gameNote : null,
           deliveredContent: delivered,
-          delivered: stock.length >= it.qty && stock.length > 0,
+          delivered: !manual && stock.length >= it.qty && stock.length > 0,
         },
       });
       if (stock.length) {
@@ -138,5 +153,6 @@ export async function checkoutAction(): Promise<CartResult> {
   revalidatePath("/");
   revalidatePath("/don-hang");
   revalidatePath("/gio-hang");
+  revalidatePath("/admin/orders");
   redirect("/don-hang?ok=checkout");
 }

@@ -9,14 +9,22 @@ import { createNotification } from "@/lib/notify";
 
 export type BuyResult =
   | { ok: true; code: string }
-  | { ok: false; error: "unavailable" | "stock" | "balance" };
+  | { ok: false; error: "unavailable" | "stock" | "balance" | "username" };
+
+export type BuyExtra = { gameUsername?: string; gameNote?: string };
 
 function genCode() {
   return "DH" + randomBytes(4).toString("hex").toUpperCase();
 }
 
-/** Mua ngay 1 sản phẩm: trừ số dư, giảm tồn kho, giao dữ liệu từ kho, tạo đơn. */
-export async function buyProductAction(productId: string): Promise<BuyResult> {
+/** Mua ngay 1 sản phẩm: trừ số dư, giảm tồn kho, tạo đơn.
+ *  - AUTO: giao dữ liệu tài khoản/vật phẩm từ kho ngay, đơn COMPLETED.
+ *  - MANUAL: lưu nick game khách, đơn PENDING chờ admin giao tay.
+ */
+export async function buyProductAction(
+  productId: string,
+  extra: BuyExtra = {},
+): Promise<BuyResult> {
   const me = await getCurrentUser();
   if (!me) redirect("/dang-nhap");
 
@@ -24,16 +32,24 @@ export async function buyProductAction(productId: string): Promise<BuyResult> {
   if (!product || !product.active) return { ok: false, error: "unavailable" };
   if (product.stock <= 0) return { ok: false, error: "stock" };
 
+  const manual = product.deliveryType === "MANUAL";
+  const gameUsername = (extra.gameUsername ?? "").trim();
+  const gameNote = (extra.gameNote ?? "").trim() || null;
+  if (manual && !gameUsername) return { ok: false, error: "username" };
+
   const user = await prisma.user.findUnique({ where: { id: me.id } });
   if (!user || user.balance < product.price) return { ok: false, error: "balance" };
 
   const code = genCode();
   await prisma.$transaction(async (tx) => {
-    const items = await tx.stockItem.findMany({
-      where: { productId: product.id, status: "AVAILABLE" },
-      take: 1,
-      orderBy: { createdAt: "asc" },
-    });
+    // Chỉ đơn AUTO mới lấy dữ liệu từ kho; đơn MANUAL giao tay nên bỏ qua.
+    const items = manual
+      ? []
+      : await tx.stockItem.findMany({
+          where: { productId: product.id, status: "AVAILABLE" },
+          take: 1,
+          orderBy: { createdAt: "asc" },
+        });
     const delivered = items.map((s) => s.content).join("\n") || null;
 
     const order = await tx.order.create({
@@ -45,8 +61,12 @@ export async function buyProductAction(productId: string): Promise<BuyResult> {
         price: product.price,
         qty: 1,
         total: product.price,
+        deliveryType: manual ? "MANUAL" : "AUTO",
+        status: manual ? "PENDING" : "COMPLETED",
+        gameUsername: manual ? gameUsername : null,
+        gameNote: manual ? gameNote : null,
         deliveredContent: delivered,
-        delivered: !!delivered,
+        delivered: !manual && !!delivered,
       },
     });
     if (items.length) {
@@ -71,5 +91,6 @@ export async function buyProductAction(productId: string): Promise<BuyResult> {
 
   revalidatePath("/");
   revalidatePath("/don-hang");
+  revalidatePath("/admin/orders");
   return { ok: true, code };
 }

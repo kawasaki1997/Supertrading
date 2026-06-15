@@ -37,6 +37,7 @@ type AdminProduct = {
   active: boolean;
   categoryId: string;
   available: number;
+  deliveryType: string;
 };
 
 type AdminCategory = {
@@ -148,9 +149,13 @@ export function AdminDashboard({ categories }: { categories: AdminCategory[] }) 
                       </p>
                       <p className="mt-0.5 text-xs text-muted">
                         Còn {p.stock} · Đã bán {p.sold} ·{" "}
-                        <span className={p.available > 0 ? "text-emerald-soft" : "text-rose-soft"}>
-                          Kho: {p.available}
-                        </span>
+                        {p.deliveryType === "MANUAL" ? (
+                          <span className="text-royal-300">Giao tay</span>
+                        ) : (
+                          <span className={p.available > 0 ? "text-emerald-soft" : "text-rose-soft"}>
+                            Kho: {p.available}
+                          </span>
+                        )}
                       </p>
                     </div>
                     <div className="text-right">
@@ -164,14 +169,16 @@ export function AdminDashboard({ categories }: { categories: AdminCategory[] }) 
                       </span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
-                      <button
-                        onClick={() => setStockModal({ open: true, product: p })}
-                        className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-lg px-2 text-xs font-semibold text-gold-300 transition-colors hover:bg-gold-500/10"
-                        aria-label="Kho hàng"
-                        title="Nhập kho"
-                      >
-                        <Boxes className="h-4 w-4" /> Kho
-                      </button>
+                      {p.deliveryType !== "MANUAL" && (
+                        <button
+                          onClick={() => setStockModal({ open: true, product: p })}
+                          className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-lg px-2 text-xs font-semibold text-gold-300 transition-colors hover:bg-gold-500/10"
+                          aria-label="Kho hàng"
+                          title="Nhập kho"
+                        >
+                          <Boxes className="h-4 w-4" /> Kho
+                        </button>
+                      )}
                       <button
                         onClick={() => setProductModal({ open: true, product: p })}
                         className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg text-parchment-dim transition-colors hover:bg-gold-500/10 hover:text-gold-300"
@@ -352,20 +359,38 @@ export function AdminDashboard({ categories }: { categories: AdminCategory[] }) 
                 />
               </div>
             </div>
-            <div>
-              <label className={labelCls}>Nhãn</label>
-              <select
-                name="badge"
-                defaultValue={productModal.product?.badge ?? ""}
-                className={inputCls}
-              >
-                {BADGES.map((b) => (
-                  <option key={b} value={b} className="bg-ink-800">
-                    {b === "" ? "(không có)" : b}
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Nhãn</label>
+                <select
+                  name="badge"
+                  defaultValue={productModal.product?.badge ?? ""}
+                  className={inputCls}
+                >
+                  {BADGES.map((b) => (
+                    <option key={b} value={b} className="bg-ink-800">
+                      {b === "" ? "(không có)" : b}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>Loại giao hàng</label>
+                <select
+                  name="deliveryType"
+                  defaultValue={productModal.product?.deliveryType ?? "AUTO"}
+                  className={inputCls}
+                >
+                  <option value="AUTO" className="bg-ink-800">Tự động (tài khoản/kho)</option>
+                  <option value="MANUAL" className="bg-ink-800">Thủ công (vật phẩm in-game)</option>
+                </select>
+              </div>
             </div>
+            <p className="-mt-2 text-[11px] text-muted">
+              <b className="text-parchment-dim">Tự động:</b> giao ngay dữ liệu từ kho khi khách mua. •{" "}
+              <b className="text-parchment-dim">Thủ công:</b> khách nhập nick game, bạn giao tay rồi bấm
+              &quot;Đã giao&quot; trong mục Đơn giao tay.
+            </p>
             <div>
               <label className={labelCls}>Ảnh sản phẩm</label>
               {productModal.product?.image && (

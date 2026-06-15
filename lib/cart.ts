@@ -9,6 +9,7 @@ export type CartLine = {
   stock: number;
   qty: number;
   lineTotal: number;
+  deliveryType: string; // AUTO | MANUAL
 };
 
 export async function getCart(userId: string) {
@@ -27,6 +28,7 @@ export async function getCart(userId: string) {
     stock: i.product.stock,
     qty: i.qty,
     lineTotal: Math.round(i.product.price * i.qty * 100) / 100,
+    deliveryType: i.product.deliveryType,
   }));
 
   const total = Math.round(lines.reduce((s, l) => s + l.lineTotal, 0) * 100) / 100;

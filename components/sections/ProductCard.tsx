@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShoppingCart, Check, Gem, Loader2, Plus } from "lucide-react";
+import { ShoppingCart, Check, Gem, Loader2, Plus, X, Hand } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { UIProduct } from "@/lib/types";
@@ -37,7 +37,11 @@ export function ProductCard({
   const [done, setDone] = useState(false);
   const [cartAdded, setCartAdded] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [buyModal, setBuyModal] = useState(false);
+  const [gameUsername, setGameUsername] = useState("");
+  const [gameNote, setGameNote] = useState("");
   const out = product.stock === 0;
+  const manual = product.deliveryType === "MANUAL";
   const tint = tints[index % tints.length];
 
   function addCart() {
@@ -58,22 +62,37 @@ export function ProductCard({
 
   function buy() {
     if (out || pending) return;
+    // Vật phẩm giao tay → mở modal nhập nick game trước khi thanh toán.
+    if (manual) {
+      setErr(null);
+      setBuyModal(true);
+      return;
+    }
     if (!confirm(`${product.name} — $${product.price.toFixed(2)}\n${t("product.confirmBuy")}`)) return;
+    doBuy();
+  }
+
+  function doBuy() {
     setErr(null);
     startTransition(async () => {
-      const res = await buyProductAction(product.id);
+      const res = await buyProductAction(
+        product.id,
+        manual ? { gameUsername, gameNote } : {},
+      );
       if (res.ok) {
         setDone(true);
-        // Đưa khách thẳng tới trang đơn hàng để nhận dữ liệu tài khoản ngay
+        setBuyModal(false);
+        // Đưa khách thẳng tới trang đơn hàng để nhận dữ liệu / theo dõi giao hàng
         router.push(`/don-hang/${res.code}`);
       } else {
         setErr(res.error ? t(`err.${res.error}`) : t("err.generic"));
-        setTimeout(() => setErr(null), 3500);
+        if (!manual) setTimeout(() => setErr(null), 3500);
       }
     });
   }
 
   return (
+    <>
     <motion.article
       initial={{ opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -136,6 +155,11 @@ export function ProductCard({
           <span className="rounded-full bg-ink-700/60 px-2 py-0.5 text-muted">
             {t("common.soldCount")} {product.sold}
           </span>
+          {manual && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-royal-500/15 px-2 py-0.5 font-medium text-royal-300 ring-1 ring-royal-400/25">
+              <Hand className="h-3 w-3" /> {t("product.manualBadge")}
+            </span>
+          )}
         </div>
 
         <div className="mt-auto">
@@ -207,5 +231,95 @@ export function ProductCard({
         </div>
       </div>
     </motion.article>
+
+    {buyModal && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm"
+        onClick={() => !pending && setBuyModal(false)}
+      >
+        <div
+          className="my-8 w-full max-w-md rounded-2xl glass-strong p-6 ring-gold"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 className="font-display text-lg font-bold text-parchment">{t("buy.title")}</h3>
+              <p className="mt-0.5 font-serif text-sm text-parchment-dim">
+                {product.name} —{" "}
+                <span className="font-bold text-gold-300">${product.price.toFixed(2)}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => !pending && setBuyModal(false)}
+              className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg text-muted transition-colors hover:bg-ink-700 hover:text-parchment"
+              aria-label={t("common.cancel")}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="mb-4 flex items-start gap-2 rounded-xl bg-royal-500/10 p-3 text-xs text-royal-200 ring-1 ring-royal-400/20">
+            <Hand className="mt-0.5 h-4 w-4 shrink-0 text-royal-300" />
+            <p>{t("buy.gameHint")}</p>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!gameUsername.trim() || pending) return;
+              doBuy();
+            }}
+            className="space-y-3"
+          >
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-parchment-dim">
+                {t("buy.gameUsername")} *
+              </label>
+              <input
+                value={gameUsername}
+                onChange={(e) => setGameUsername(e.target.value)}
+                required
+                autoFocus
+                placeholder={t("buy.gameUsernamePh")}
+                className="h-10 w-full rounded-lg border border-gold-500/15 bg-ink-800/70 px-3 text-sm text-parchment placeholder:text-muted outline-none transition-colors focus:border-gold-500/40"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-parchment-dim">
+                {t("buy.gameNote")}
+              </label>
+              <textarea
+                value={gameNote}
+                onChange={(e) => setGameNote(e.target.value)}
+                rows={2}
+                placeholder={t("buy.gameNotePh")}
+                className="w-full rounded-lg border border-gold-500/15 bg-ink-800/70 p-3 text-sm text-parchment placeholder:text-muted outline-none transition-colors focus:border-gold-500/40"
+              />
+            </div>
+
+            {err && <p className="text-xs font-medium text-rose-soft">{err}</p>}
+
+            <div className="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => !pending && setBuyModal(false)}
+                className="cursor-pointer rounded-lg bg-ink-800/70 px-4 py-2.5 text-sm font-semibold text-parchment-dim ring-1 ring-gold-500/12 transition-colors hover:text-parchment"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                type="submit"
+                disabled={pending || !gameUsername.trim()}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-gradient-to-b from-gold-300 to-gold-600 px-5 py-2.5 text-sm font-bold text-ink-950 transition-all hover:from-gold-200 hover:to-gold-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
+                {pending ? t("common.processing") : t("buy.confirm")}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

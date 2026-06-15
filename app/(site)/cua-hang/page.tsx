@@ -44,6 +44,7 @@ export default async function ShopPage({
     sold: p.sold,
     badge: p.badge,
     image: p.image,
+    deliveryType: p.deliveryType,
   }));
 
   const selectCls =

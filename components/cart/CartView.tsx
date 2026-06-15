@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Minus, Plus, Trash2, Gem, ShoppingBag, Loader2, Wallet } from "lucide-react";
+import { Minus, Plus, Trash2, Gem, ShoppingBag, Loader2, Wallet, Hand } from "lucide-react";
 import type { CartLine } from "@/lib/cart";
 import {
   updateCartQtyAction,
@@ -25,13 +25,17 @@ export function CartView({
   const router = useRouter();
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
+  const [gameUsername, setGameUsername] = useState("");
+  const [gameNote, setGameNote] = useState("");
 
   const checkoutErr: Record<string, string> = {
     balance: t("err.balance"),
     stock: t("cart.errStock"),
     empty: t("cart.errEmpty"),
+    username: t("err.username"),
   };
 
+  const hasManual = lines.some((l) => l.deliveryType === "MANUAL");
   const enough = balance >= total;
 
   function run(fn: () => Promise<unknown>) {
@@ -43,9 +47,15 @@ export function CartView({
 
   function checkout() {
     if (!lines.length || !enough || pending) return;
+    if (hasManual && !gameUsername.trim()) {
+      setErr(checkoutErr.username);
+      return;
+    }
     setErr(null);
     start(async () => {
-      const res = await checkoutAction();
+      const res = await checkoutAction(
+        hasManual ? { gameUsername, gameNote } : {},
+      );
       if (res && !res.ok) {
         setErr(checkoutErr[res.error ?? ""] ?? t("err.generic"));
         router.refresh();
@@ -144,6 +154,28 @@ export function CartView({
             <span className="font-display text-xl font-bold text-gold-grad">${total.toFixed(2)}</span>
           </div>
         </div>
+
+        {hasManual && (
+          <div className="space-y-2 rounded-xl bg-royal-500/10 p-3 ring-1 ring-royal-400/20">
+            <p className="flex items-center gap-1.5 text-xs font-semibold text-royal-200">
+              <Hand className="h-4 w-4 text-royal-300" /> {t("cart.manualTitle")}
+            </p>
+            <p className="text-[11px] text-parchment-dim">{t("cart.manualHint")}</p>
+            <input
+              value={gameUsername}
+              onChange={(e) => setGameUsername(e.target.value)}
+              placeholder={t("buy.gameUsernamePh")}
+              className="h-9 w-full rounded-lg border border-gold-500/15 bg-ink-800/70 px-3 text-sm text-parchment placeholder:text-muted outline-none transition-colors focus:border-gold-500/40"
+            />
+            <textarea
+              value={gameNote}
+              onChange={(e) => setGameNote(e.target.value)}
+              rows={2}
+              placeholder={t("buy.gameNotePh")}
+              className="w-full rounded-lg border border-gold-500/15 bg-ink-800/70 p-2.5 text-sm text-parchment placeholder:text-muted outline-none transition-colors focus:border-gold-500/40"
+            />
+          </div>
+        )}
 
         {err && (
           <p className="rounded-lg bg-rose-soft/10 px-3 py-2 text-xs font-medium text-rose-soft ring-1 ring-rose-soft/25">

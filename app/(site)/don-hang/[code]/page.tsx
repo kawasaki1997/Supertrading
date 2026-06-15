@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, PackageCheck, Clock, AlertTriangle, CheckCircle2, ShieldAlert } from "lucide-react";
+import { ArrowLeft, PackageCheck, Clock, AlertTriangle, CheckCircle2, ShieldAlert, Hand, XCircle } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { DeliveredBox } from "@/components/order/DeliveredBox";
@@ -32,6 +32,16 @@ export default async function OrderDetailPage({
   });
 
   const t = await getT();
+  const manual = order.deliveryType === "MANUAL";
+
+  const badge =
+    order.status === "CANCELLED"
+      ? { text: t("status.cancelled"), cls: "bg-rose-soft/10 text-rose-soft ring-rose-soft/25", Icon: XCircle }
+      : manual && order.status === "PENDING"
+        ? { text: t("status.processing"), cls: "bg-gold-500/10 text-gold-300 ring-gold-500/25", Icon: Clock }
+        : manual && order.status === "DELIVERED"
+          ? { text: t("status.delivered"), cls: "bg-emerald-soft/10 text-emerald-soft ring-emerald-soft/25", Icon: CheckCircle2 }
+          : { text: t("order.paid"), cls: "bg-emerald-soft/10 text-emerald-soft ring-emerald-soft/25", Icon: CheckCircle2 };
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -46,8 +56,8 @@ export default async function OrderDetailPage({
             <p className="text-xs uppercase tracking-wider text-muted">{t("order.code")}</p>
             <p className="font-display text-xl font-bold text-parchment">{order.code}</p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-soft/10 px-3 py-1 text-xs font-medium text-emerald-soft ring-1 ring-emerald-soft/25">
-            <CheckCircle2 className="h-3.5 w-3.5" /> {t("order.paid")}
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ring-1 ${badge.cls}`}>
+            <badge.Icon className="h-3.5 w-3.5" /> {badge.text}
           </span>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
@@ -58,20 +68,51 @@ export default async function OrderDetailPage({
         </div>
       </div>
 
-      {/* Delivered data */}
-      <div className="rounded-2xl glass p-6">
-        <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold text-parchment">
-          <PackageCheck className="h-5 w-5 text-gold-400" /> {t("order.dataTitle")}
-        </h2>
-        {order.deliveredContent ? (
-          <DeliveredBox content={order.deliveredContent} code={order.code} />
-        ) : (
-          <div className="flex items-start gap-3 rounded-xl bg-gold-500/8 p-4 text-sm ring-1 ring-gold-500/20">
-            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-gold-300" />
-            <p className="text-parchment-dim">{t("order.waiting")}</p>
+      {/* Delivery section */}
+      {manual ? (
+        <div className="rounded-2xl glass p-6">
+          <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold text-parchment">
+            <Hand className="h-5 w-5 text-royal-300" /> {t("order.dataTitle")}
+          </h2>
+          {order.status === "CANCELLED" ? (
+            <div className="flex items-start gap-3 rounded-xl bg-rose-soft/8 p-4 text-sm ring-1 ring-rose-soft/20">
+              <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-soft" />
+              <p className="text-parchment-dim">{t("order.cancelledRefund")}</p>
+            </div>
+          ) : order.status === "DELIVERED" ? (
+            <div className="flex items-start gap-3 rounded-xl bg-emerald-soft/8 p-4 text-sm ring-1 ring-emerald-soft/20">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-soft" />
+              <p className="text-parchment-dim">{t("order.manualDelivered")}</p>
+            </div>
+          ) : (
+            <div className="flex items-start gap-3 rounded-xl bg-gold-500/8 p-4 text-sm ring-1 ring-gold-500/20">
+              <Clock className="mt-0.5 h-5 w-5 shrink-0 text-gold-300" />
+              <p className="text-parchment-dim">{t("order.manualProcessing")}</p>
+            </div>
+          )}
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Info label={t("order.gameUsername")} value={order.gameUsername || "—"} />
+            {order.gameNote && <Info label={t("order.gameNote")} value={order.gameNote} />}
           </div>
-        )}
-      </div>
+          {order.status !== "CANCELLED" && (
+            <p className="mt-3 text-xs text-muted">{t("order.manualHint")}</p>
+          )}
+        </div>
+      ) : (
+        <div className="rounded-2xl glass p-6">
+          <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold text-parchment">
+            <PackageCheck className="h-5 w-5 text-gold-400" /> {t("order.dataTitle")}
+          </h2>
+          {order.deliveredContent ? (
+            <DeliveredBox content={order.deliveredContent} code={order.code} />
+          ) : (
+            <div className="flex items-start gap-3 rounded-xl bg-gold-500/8 p-4 text-sm ring-1 ring-gold-500/20">
+              <Clock className="mt-0.5 h-5 w-5 shrink-0 text-gold-300" />
+              <p className="text-parchment-dim">{t("order.waiting")}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Report */}
       <div className="rounded-2xl glass p-6">

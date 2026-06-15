@@ -7,6 +7,7 @@ export type UIProduct = {
   sold: number;
   badge: string | null;
   image: string | null;
+  deliveryType: string; // AUTO | MANUAL
 };
 
 export type SessionUser = {

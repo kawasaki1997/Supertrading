@@ -38,6 +38,7 @@ export default async function AdminPage() {
       active: p.active,
       categoryId: p.categoryId,
       available: stockMap.get(p.id) ?? 0,
+      deliveryType: p.deliveryType,
     })),
   }));
 

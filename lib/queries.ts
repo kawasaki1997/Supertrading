@@ -24,6 +24,7 @@ export async function getShopData(): Promise<UICategory[]> {
       sold: p.sold,
       badge: p.badge,
       image: p.image,
+      deliveryType: p.deliveryType,
     })),
   }));
 }
