@@ -72,6 +72,13 @@ const vi: Dict = {
   // notifications
   "notif.title": "Thông báo",
   "notif.empty": "Bạn chưa có thông báo nào.",
+  "notif.depositTitle": "Nạp tiền thành công",
+  "notif.depositMsg": "đã cộng vào tài khoản của bạn",
+  "notif.orderTitle": "Đơn hàng đã sẵn sàng",
+  "notif.orderMsg": "Bấm để xem dữ liệu tài khoản",
+  "notif.reportTitle": "Khiếu nại đã được xử lý",
+  "notif.reportMsg": "Admin đã phản hồi khiếu nại của bạn",
+  "notif.viewAll": "Xem tất cả",
 
   // support
   "support.title": "Hỗ trợ",
@@ -110,6 +117,17 @@ const vi: Dict = {
   "shop.all": "Tất cả",
   "shop.filter": "Bộ lọc",
   "shop.noProducts": "Chưa có sản phẩm trong danh mục này.",
+  "shop.filterTitle": "Bộ lọc sản phẩm",
+  "shop.category": "Danh mục",
+  "shop.allCategories": "Tất cả danh mục",
+  "shop.sortBy": "Sắp xếp",
+  "shop.sortPopular": "Bán chạy",
+  "shop.sortPriceLow": "Giá thấp → cao",
+  "shop.sortPriceHigh": "Giá cao → thấp",
+  "shop.sortNewest": "Mới nhất",
+  "shop.inStockOnly": "Chỉ còn hàng",
+  "shop.apply": "Áp dụng",
+  "shop.allProducts": "Tất cả sản phẩm",
 
   // stats
   "stats.completed": "Đơn hoàn tất",
@@ -359,6 +377,13 @@ const en: Dict = {
   // notifications
   "notif.title": "Notifications",
   "notif.empty": "You have no notifications yet.",
+  "notif.depositTitle": "Deposit successful",
+  "notif.depositMsg": "credited to your account",
+  "notif.orderTitle": "Your order is ready",
+  "notif.orderMsg": "Tap to view your account data",
+  "notif.reportTitle": "Complaint resolved",
+  "notif.reportMsg": "Admin replied to your complaint",
+  "notif.viewAll": "View all",
 
   // support
   "support.title": "Support",
@@ -395,6 +420,17 @@ const en: Dict = {
   "shop.all": "All",
   "shop.filter": "Filter",
   "shop.noProducts": "No products in this category yet.",
+  "shop.filterTitle": "Filter products",
+  "shop.category": "Category",
+  "shop.allCategories": "All categories",
+  "shop.sortBy": "Sort by",
+  "shop.sortPopular": "Best selling",
+  "shop.sortPriceLow": "Price: low → high",
+  "shop.sortPriceHigh": "Price: high → low",
+  "shop.sortNewest": "Newest",
+  "shop.inStockOnly": "In stock only",
+  "shop.apply": "Apply",
+  "shop.allProducts": "All products",
 
   "stats.completed": "Completed orders",
   "stats.happy": "Happy customers",

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { createNotification } from "@/lib/notify";
 
 function genCode() {
   return "DH" + randomBytes(4).toString("hex").toUpperCase();
@@ -125,6 +126,13 @@ export async function checkoutAction(): Promise<CartResult> {
     }
 
     await tx.cartItem.deleteMany({ where: { userId: me.id } });
+  });
+
+  await createNotification({
+    userId: me.id,
+    type: "ORDER",
+    text: items.length > 1 ? `${items.length}` : items[0].product.name,
+    href: "/don-hang",
   });
 
   revalidatePath("/");

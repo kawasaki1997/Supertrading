@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { LayoutGrid, SlidersHorizontal } from "lucide-react";
 import { useT } from "@/components/i18n/LangProvider";
 
@@ -51,10 +52,10 @@ export function ShopToolbar({
         })}
       </div>
 
-      <button className="flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-ink-800/70 px-3.5 py-2 text-xs font-semibold text-parchment-dim ring-1 ring-gold-500/12 transition-colors hover:text-parchment">
+      <Link href="/cua-hang" className="flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-ink-800/70 px-3.5 py-2 text-xs font-semibold text-parchment-dim ring-1 ring-gold-500/12 transition-colors hover:text-parchment">
         <SlidersHorizontal className="h-4 w-4" />
         {t("shop.filter")}
-      </button>
+      </Link>
     </div>
   );
 }

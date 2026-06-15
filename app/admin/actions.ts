@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { signIn, signOut, isAuthed } from "@/lib/auth";
 import { uploadImage } from "@/lib/storage";
+import { createNotification } from "@/lib/notify";
 
 /* ----------------------------- auth ----------------------------- */
 
@@ -163,9 +164,14 @@ export async function resolveReportAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const reply = String(formData.get("reply") ?? "").trim() || null;
   if (id) {
-    await prisma.report.update({
+    const report = await prisma.report.update({
       where: { id },
       data: { status: "RESOLVED", adminReply: reply },
+    });
+    await createNotification({
+      userId: report.userId,
+      type: "REPORT",
+      href: report.orderCode ? `/don-hang/${report.orderCode}` : "/khieu-nai",
     });
   }
   revalidatePath("/admin/reports");

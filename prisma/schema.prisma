@@ -52,8 +52,9 @@ model User {
   resetTokens  PasswordResetToken[]
   deposits     DepositOrder[]
   orders       Order[]
-  cart         CartItem[]
-  reports      Report[]
+  cart          CartItem[]
+  reports       Report[]
+  notifications Notification[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -142,4 +143,16 @@ model Report {
   status     String   @default("OPEN") // OPEN | RESOLVED
   adminReply String?
   createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String // DEPOSIT | ORDER | REPORT
+  amount    Float?
+  text      String? // product name / order code
+  href      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

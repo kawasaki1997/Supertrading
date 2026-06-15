@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { createNotification } from "@/lib/notify";
 
 export type BuyResult =
   | { ok: true; code: string }
@@ -59,6 +60,13 @@ export async function buyProductAction(productId: string): Promise<BuyResult> {
       where: { id: product.id },
       data: { stock: { decrement: 1 }, sold: { increment: 1 } },
     });
+  });
+
+  await createNotification({
+    userId: me.id,
+    type: "ORDER",
+    text: product.name,
+    href: `/don-hang/${code}`,
   });
 
   revalidatePath("/");

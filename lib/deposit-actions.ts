@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { isAuthed } from "@/lib/auth";
 import { DEPOSIT_METHODS, isValidMethod } from "@/lib/deposit-config";
+import { createNotification } from "@/lib/notify";
 
 function genCode() {
   return "NAP" + randomBytes(4).toString("hex").toUpperCase();
@@ -66,6 +67,12 @@ export async function approveDepositAction(formData: FormData) {
         data: { balance: { increment: order.amountUsd } },
       }),
     ]);
+    await createNotification({
+      userId: order.userId,
+      type: "DEPOSIT",
+      amount: order.amountUsd,
+      href: `/nap-tien/${order.code}`,
+    });
   }
 
   revalidatePath("/admin/deposits");

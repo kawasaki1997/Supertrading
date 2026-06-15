@@ -44,9 +44,11 @@ const nav: NavItem[] = [
 export function TopNav({
   user,
   cartCount,
+  notifCount,
 }: {
   user: SessionUser | null;
   cartCount: number;
+  notifCount: number;
 }) {
   const pathname = usePathname();
   const t = useT();
@@ -55,6 +57,8 @@ export function TopNav({
 
   const isActive = (item: NavItem) =>
     item.href ? pathname === item.href : activePlaceholder === item.key;
+  const badgeFor = (item: NavItem) =>
+    item.key === "nav.notifications" && notifCount > 0 ? notifCount : item.badge;
 
   return (
     <header className="sticky top-0 z-40 border-b border-gold-500/12 bg-ink-950/80 backdrop-blur-xl">
@@ -162,9 +166,9 @@ export function TopNav({
                     }`}
                   />
                   {t(item.key)}
-                  {item.badge && (
+                  {badgeFor(item) && (
                     <span className="grid h-4 min-w-4 place-items-center rounded-full bg-royal-500/80 px-1 text-[10px] font-bold text-white">
-                      {item.badge}
+                      {badgeFor(item)}
                     </span>
                   )}
                   {active && (
@@ -278,9 +282,9 @@ export function TopNav({
                   <>
                     <item.icon className={`h-[18px] w-[18px] ${active ? "text-gold-400" : "text-muted"}`} />
                     <span className="flex-1 text-left">{t(item.key)}</span>
-                    {item.badge && (
+                    {badgeFor(item) && (
                       <span className="grid h-5 min-w-5 place-items-center rounded-full bg-royal-500/80 px-1.5 text-[10px] font-bold text-white">
-                        {item.badge}
+                        {badgeFor(item)}
                       </span>
                     )}
                   </>
