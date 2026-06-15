@@ -6,8 +6,8 @@ import Script from "next/script";
  * Lấy 2 mã này trong Tawk.to Dashboard → Administration → Channels → Chat Widget.
  */
 export function TawkChat() {
-  const propertyId = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID;
-  const widgetId = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID;
+  const propertyId = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID || "6a2f74515369ba1d3a94b62f";
+  const widgetId = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID || "1jr4lsodk";
   if (!propertyId || !widgetId) return null;
 
   return (
