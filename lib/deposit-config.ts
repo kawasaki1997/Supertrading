@@ -39,11 +39,12 @@ export const DEPOSIT_METHODS: Record<DepositMethodKey, DepositMethod> = {
     label: "Ngân hàng",
     network: "VietQR",
     symbol: "VND",
-    address: process.env.BANK_ACCOUNT || "CHUA_CAU_HINH_SO_TAI_KHOAN",
+    // Thông tin công khai (hiện cho khách) → để mặc định ngay đây, env ghi đè nếu cần.
+    address: process.env.BANK_ACCOUNT || "106870949107",
     usdPerUnit: 1 / VND_USD_RATE, // 1 VND = ? USD
     note: "Chuyển khoản ngân hàng (quét VietQR). Nhập đúng nội dung CK để hệ thống tự cộng tiền.",
-    bankBin: process.env.BANK_BIN || "970422", // mặc định MB Bank (SePay hỗ trợ tự động)
-    accountName: process.env.BANK_ACCOUNT_NAME || "",
+    bankBin: process.env.BANK_BIN || "970415", // VietinBank
+    accountName: process.env.BANK_ACCOUNT_NAME || "NGUYEN VAN NHAT",
   },
 };
 
