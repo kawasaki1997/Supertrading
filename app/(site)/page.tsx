@@ -1,4 +1,3 @@
-import { MessageCircle } from "lucide-react";
 import { Hero } from "@/components/sections/Hero";
 import { StatsBar } from "@/components/sections/StatsBar";
 import { ShopToolbar } from "@/components/sections/ShopToolbar";
@@ -27,15 +26,6 @@ export default async function Home() {
       </div>
 
       <Footer />
-
-      {/* Floating chat */}
-      <button
-        aria-label="Mở chat hỗ trợ"
-        className="fixed bottom-6 right-6 z-40 grid h-14 w-14 cursor-pointer place-items-center rounded-full bg-gradient-to-br from-gold-300 to-gold-600 text-ink-950 shadow-[0_10px_40px_-8px_rgba(200,170,110,0.6)] transition-transform duration-200 hover:scale-105"
-      >
-        <MessageCircle className="h-6 w-6" />
-        <span className="absolute right-0 top-0 h-3.5 w-3.5 rounded-full bg-rose-soft ring-2 ring-ink-950" />
-      </button>
     </div>
   );
 }

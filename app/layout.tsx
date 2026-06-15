@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cinzel, Cormorant, Montserrat } from "next/font/google";
 import "./globals.css";
+import { TawkChat } from "@/components/chat/TawkChat";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -24,9 +25,9 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Super Trading — Chợ vật phẩm & tài khoản game cao cấp",
+  title: "Super Trading — Premium game items & accounts marketplace",
   description:
-    "Cửa hàng vật phẩm & tài khoản game uy tín. Giá tốt, giao ngay, an toàn 100%, hỗ trợ 24/7.",
+    "Trusted marketplace for game items & accounts. Best prices, instant delivery, 100% safe, 24/7 support.",
 };
 
 export default function RootLayout({
@@ -36,10 +37,13 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="vi"
+      lang="en"
       className={`${cinzel.variable} ${cormorant.variable} ${montserrat.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <TawkChat />
+      </body>
     </html>
   );
 }
