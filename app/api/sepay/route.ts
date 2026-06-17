@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma, withRetry } from "@/lib/db";
 import { createNotification } from "@/lib/notify";
+import { getConfig } from "@/lib/app-config";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,8 @@ export const dynamic = "force-dynamic";
  * Cấu hình ở SePay: URL = https://<domain>/api/sepay, Header Authorization = "Apikey <SEPAY_API_KEY>".
  */
 export async function POST(req: Request) {
-  const secret = process.env.SEPAY_API_KEY;
+  // Ưu tiên env (Vercel); nếu chưa đặt thì lấy từ DB (bảng AppConfig) → không cần commit secret.
+  const secret = process.env.SEPAY_API_KEY || (await getConfig("sepay_api_key"));
   if (!secret) return NextResponse.json({ success: false, error: "not configured" }, { status: 503 });
 
   const auth = req.headers.get("authorization") ?? "";
