@@ -8,6 +8,7 @@ import type { UIProduct } from "@/lib/types";
 import { buyProductAction } from "@/lib/order-actions";
 import { addToCartAction } from "@/lib/cart-actions";
 import { useT } from "@/components/i18n/LangProvider";
+import { formatPrice } from "@/lib/format";
 
 const badgeStyles: Record<string, string> = {
   HOT: "bg-rose-soft/15 text-rose-soft ring-rose-soft/30",
@@ -73,7 +74,7 @@ export function ProductCard({
       setBuyModal(true);
       return;
     }
-    if (!confirm(`${product.name} ×${qty} — $${(product.price * qty).toFixed(2)}\n${t("product.confirmBuy")}`)) return;
+    if (!confirm(`${product.name} ×${qty} — $${formatPrice(product.price * qty)}\n${t("product.confirmBuy")}`)) return;
     doBuy();
   }
 
@@ -208,11 +209,11 @@ export function ProductCard({
             <div className="leading-none">
               {product.oldPrice && (
                 <span className="mr-1.5 text-xs text-muted line-through">
-                  ${product.oldPrice.toFixed(2)}
+                  ${formatPrice(product.oldPrice)}
                 </span>
               )}
               <span className="font-display text-xl font-bold tracking-wide text-gold-grad">
-                ${product.price.toFixed(2)}
+                ${formatPrice(product.price)}
               </span>
             </div>
 
@@ -284,9 +285,9 @@ export function ProductCard({
               <h3 className="font-display text-lg font-bold text-parchment">{t("buy.title")}</h3>
               <p className="mt-0.5 font-serif text-sm text-parchment-dim">
                 {product.name} —{" "}
-                <span className="font-bold text-gold-300">${(product.price * qty).toFixed(2)}</span>
+                <span className="font-bold text-gold-300">${formatPrice(product.price * qty)}</span>
                 {qty > 1 && (
-                  <span className="text-muted"> ({qty} × ${product.price.toFixed(2)})</span>
+                  <span className="text-muted"> ({qty} × ${formatPrice(product.price)})</span>
                 )}
               </p>
             </div>

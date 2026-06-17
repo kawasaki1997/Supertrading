@@ -11,6 +11,7 @@ import {
   checkoutAction,
 } from "@/lib/cart-actions";
 import { useT } from "@/components/i18n/LangProvider";
+import { formatPrice } from "@/lib/format";
 
 export function CartView({
   lines,
@@ -95,7 +96,7 @@ export function CartView({
 
             <div className="min-w-0 flex-1">
               <p className="truncate font-serif text-base font-semibold text-parchment">{l.name}</p>
-              <p className="text-sm text-gold-300">${l.price.toFixed(2)}</p>
+              <p className="text-sm text-gold-300">${formatPrice(l.price)}</p>
             </div>
 
             {/* Qty */}
@@ -120,7 +121,7 @@ export function CartView({
             </div>
 
             <div className="hidden w-20 text-right font-display text-sm font-bold text-gold-grad sm:block">
-              ${l.lineTotal.toFixed(2)}
+              ${formatPrice(l.lineTotal)}
             </div>
 
             <button
@@ -142,7 +143,7 @@ export function CartView({
         <div className="space-y-2 text-sm">
           <div className="flex justify-between text-parchment-dim">
             <span>{t("cart.subtotal")}</span>
-            <span className="font-semibold text-parchment">${total.toFixed(2)}</span>
+            <span className="font-semibold text-parchment">${formatPrice(total)}</span>
           </div>
           <div className="flex justify-between text-parchment-dim">
             <span className="flex items-center gap-1.5"><Wallet className="h-4 w-4 text-gold-400" /> {t("common.balance")}</span>
@@ -151,7 +152,7 @@ export function CartView({
           <div className="rule-gold my-1" />
           <div className="flex justify-between">
             <span className="font-semibold text-parchment">{t("cart.total")}</span>
-            <span className="font-display text-xl font-bold text-gold-grad">${total.toFixed(2)}</span>
+            <span className="font-display text-xl font-bold text-gold-grad">${formatPrice(total)}</span>
           </div>
         </div>
 

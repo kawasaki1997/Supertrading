@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/session";
 import { DeliveredBox } from "@/components/order/DeliveredBox";
 import { submitReportAction } from "@/lib/report-actions";
 import { getT } from "@/lib/i18n";
+import { formatPrice } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Order Details — Super Trading" };
@@ -63,7 +64,7 @@ export default async function OrderDetailPage({
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
           <Info label={t("order.product")} value={order.productName} />
           <Info label={t("order.qty")} value={String(order.qty)} />
-          <Info label={t("order.total")} value={`$${order.total.toFixed(2)}`} gold />
+          <Info label={t("order.total")} value={`$${formatPrice(order.total)}`} gold />
           <Info label={t("order.time")} value={new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(order.createdAt)} />
         </div>
       </div>

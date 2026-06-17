@@ -4,6 +4,7 @@ import { ScrollText, Package, ArrowRight, CheckCircle2 } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { getT } from "@/lib/i18n";
+import { formatPrice } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My Orders — Super Trading" };
@@ -49,7 +50,7 @@ export default async function OrdersPage({
         </div>
         <div className="rounded-2xl glass px-4 py-4">
           <p className="text-[11px] uppercase tracking-wider text-muted">{t("orders.spent")}</p>
-          <p className="font-display text-2xl font-bold text-gold-grad">${totalSpent.toFixed(2)}</p>
+          <p className="font-display text-2xl font-bold text-gold-grad">${formatPrice(totalSpent)}</p>
         </div>
       </div>
 
@@ -85,7 +86,7 @@ export default async function OrdersPage({
                     </Link>
                   </td>
                   <td className="px-4 py-3 font-medium text-parchment">{o.productName}</td>
-                  <td className="px-4 py-3 font-semibold text-gold-300">${o.total.toFixed(2)}</td>
+                  <td className="px-4 py-3 font-semibold text-gold-300">${formatPrice(o.total)}</td>
                   <td className="px-4 py-3">
                     {(() => {
                       const b =

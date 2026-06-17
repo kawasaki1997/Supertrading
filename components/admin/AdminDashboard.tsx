@@ -23,6 +23,7 @@ import {
   deleteCategory,
   addStockAction,
 } from "@/app/admin/actions";
+import { formatPrice } from "@/lib/format";
 
 type AdminProduct = {
   id: string;
@@ -161,11 +162,11 @@ export function AdminDashboard({ categories }: { categories: AdminCategory[] }) 
                     <div className="text-right">
                       {p.oldPrice && (
                         <span className="mr-1 text-xs text-muted line-through">
-                          ${p.oldPrice.toFixed(2)}
+                          ${formatPrice(p.oldPrice)}
                         </span>
                       )}
                       <span className="font-display text-sm font-bold text-gold-grad">
-                        ${p.price.toFixed(2)}
+                        ${formatPrice(p.price)}
                       </span>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
@@ -312,7 +313,7 @@ export function AdminDashboard({ categories }: { categories: AdminCategory[] }) 
                 <input
                   name="price"
                   type="number"
-                  step="0.01"
+                  step="0.00001"
                   required
                   defaultValue={productModal.product?.price ?? ""}
                   className={inputCls}
@@ -323,7 +324,7 @@ export function AdminDashboard({ categories }: { categories: AdminCategory[] }) 
                 <input
                   name="oldPrice"
                   type="number"
-                  step="0.01"
+                  step="0.00001"
                   defaultValue={productModal.product?.oldPrice ?? ""}
                   className={inputCls}
                   placeholder="(để gạch giảm giá)"
