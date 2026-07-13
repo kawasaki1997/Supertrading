@@ -44,9 +44,8 @@ export async function createDepositAction(formData: FormData) {
   if (!Number.isFinite(amountUsd) || amountUsd < 1) redirect("/nap-tien?error=amount");
 
   const base = amountUsd / method.usdPerUnit;
-  // Bank khớp bằng nội dung CK (không cần số lẻ) → làm tròn VND. Crypto khớp bằng số tiền độc nhất.
-  const cryptoAmount =
-    method.key === "BANK" ? Math.round(base) : await uniqueCryptoAmount(method, base);
+  // Crypto khớp tự động bằng số tiền độc nhất (thêm phần lẻ nhỏ) trên ví dùng chung.
+  const cryptoAmount = await uniqueCryptoAmount(method, base);
 
   const order = await prisma.depositOrder.create({
     data: {
@@ -68,23 +67,31 @@ export async function createDepositAction(formData: FormData) {
 
 export type CheckResult = { status: string; credited?: number };
 
-/** Kiểm tra blockchain xem lệnh nạp đã có tiền tới chưa → tự cộng nếu khớp. */
-export async function checkDepositAction(code: string): Promise<CheckResult> {
-  const me = await getCurrentUser();
-  if (!me) return { status: "PENDING" };
+type PendingOrder = {
+  id: string;
+  code: string;
+  userId: string;
+  method: string;
+  symbol: string;
+  amountUsd: number;
+  cryptoAmount: number;
+  address: string;
+  status: string;
+  createdAt: Date;
+};
 
-  const order = await prisma.depositOrder.findUnique({ where: { code } });
-  if (!order || order.userId !== me.id) return { status: "PENDING" };
+/**
+ * Lõi khớp & cộng tiền cho 1 lệnh nạp PENDING (KHÔNG phụ thuộc session).
+ * Dùng chung cho: client tự dò (checkDepositAction) và cron server (settle-deposits route).
+ */
+export async function settleDepositOrder(order: PendingOrder): Promise<CheckResult> {
   if (order.status !== "PENDING") return { status: order.status };
-
-  // Bank: tiền vào do webhook SePay tự cộng → action chỉ đọc trạng thái hiện tại.
-  if (order.method === "BANK") return { status: order.status };
 
   let txs;
   try {
     txs = await fetchIncoming(order.method, order.address, order.createdAt.getTime());
   } catch (e) {
-    console.error("[checkDeposit] đọc blockchain lỗi:", e);
+    console.error(`[settle ${order.code}] đọc blockchain lỗi:`, e);
     return { status: "PENDING" };
   }
 
@@ -113,7 +120,7 @@ export async function checkDepositAction(code: string): Promise<CheckResult> {
         ]),
       );
     } catch (e) {
-      console.error("[checkDeposit] cộng tiền lỗi:", e);
+      console.error(`[settle ${order.code}] cộng tiền lỗi:`, e);
       const fresh = await prisma.depositOrder.findUnique({ where: { id: order.id } });
       return { status: fresh?.status ?? "PENDING" };
     }
@@ -130,6 +137,17 @@ export async function checkDepositAction(code: string): Promise<CheckResult> {
   }
 
   return { status: "PENDING" };
+}
+
+/** Client tự dò (poll): kiểm tra 1 lệnh của chính mình đã có tiền tới chưa. */
+export async function checkDepositAction(code: string): Promise<CheckResult> {
+  const me = await getCurrentUser();
+  if (!me) return { status: "PENDING" };
+
+  const order = await prisma.depositOrder.findUnique({ where: { code } });
+  if (!order || order.userId !== me.id) return { status: "PENDING" };
+
+  return settleDepositOrder(order);
 }
 
 /* --------------------------- admin --------------------------- */
