@@ -65,6 +65,21 @@ export default async function DepositOrderPage({
               <p className="mt-1 text-xs text-muted">{t("deposit.viaNetwork")} {order.network} · {t("deposit.credited")} ${order.amountUsd.toFixed(2)}</p>
             </div>
 
+            {/* QR địa chỉ ví — khách mở app ví quét để khỏi gõ tay, tránh sai địa chỉ */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="rounded-xl bg-white p-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=0&data=${encodeURIComponent(order.address)}`}
+                  alt={`${order.symbol} ${order.network} wallet QR`}
+                  width={200}
+                  height={200}
+                  className="h-[200px] w-[200px] rounded-lg"
+                />
+              </div>
+              <p className="text-center text-xs text-muted">{t("deposit.scanWallet")}</p>
+            </div>
+
             <CopyField label={`${t("deposit.walletAddr")} (${order.network})`} value={order.address} />
             <div className="rounded-xl bg-gold-500/8 p-3 text-xs ring-1 ring-gold-500/20">
               <p className="text-parchment-dim">⏳ {t("deposit.waitNote")} ({order.network})</p>
