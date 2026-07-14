@@ -28,8 +28,11 @@ const BSC_RPCS = [
 ];
 // BSC block rất nhanh (~0.45s sau nâng cấp). Ước lượng THẤP để quét rộng hơn, không bỏ sót.
 const BSC_BLOCK_MS = 250;
-const MAX_SCAN_BLOCKS = 40000; // node công khai thường chỉ giữ ~ngần này block log (~5h)
-const CHUNK = 5000; // giới hạn 1 lần eth_getLogs
+const MAX_SCAN_BLOCKS = 18000; // ~75 phút — đủ rộng cho 1 lệnh nạp, không quét quá xa gây timeout
+// USDT là token siêu bận (~47k Transfer/500 block). Đoạn >2000 khiến node công khai timeout khi
+// lọc theo người nhận. 1500 luôn trả nhanh & ổn định (đã kiểm chứng trực tiếp trên blxrbdn).
+const CHUNK = 1500; // giới hạn 1 lần eth_getLogs
+const RPC_TIMEOUT_MS = 12000; // mỗi request; timeout thì thử RPC/đoạn khác thay vì treo
 
 /** Số nguyên chuỗi (đơn vị nhỏ nhất, `decimals` chữ số) → số thập phân. BigInt để không mất chính xác. */
 function fromTokenUnits(raw: string, decimals: number): number {
@@ -54,6 +57,7 @@ async function rpc(url: string, method: string, params: unknown[]): Promise<unkn
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
     cache: "no-store",
+    signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = (await res.json()) as { result?: unknown; error?: { message: string } };
@@ -61,44 +65,67 @@ async function rpc(url: string, method: string, params: unknown[]): Promise<unkn
   return data.result;
 }
 
-/** Nguồn chính: quét event Transfer USDT đến địa chỉ qua RPC BSC. */
+/** getLogs cho 1 đoạn — thử lần lượt từng RPC, đoạn nào cũng phải đọc được ở ít nhất 1 node. */
+async function getLogsChunk(
+  urls: string[],
+  paddedTo: string,
+  from: number,
+  to: number,
+): Promise<Array<{ transactionHash: string; data: string }>> {
+  let lastErr: unknown;
+  for (const url of urls) {
+    try {
+      return (await rpc(url, "eth_getLogs", [
+        {
+          address: USDT_BSC,
+          topics: [TRANSFER_TOPIC, null, paddedTo],
+          fromBlock: "0x" + from.toString(16),
+          toBlock: "0x" + to.toString(16),
+        },
+      ])) as Array<{ transactionHash: string; data: string }>;
+    } catch (e) {
+      lastErr = e;
+      console.error(`[getLogs] ${url} ${from}-${to}:`, e instanceof Error ? e.message : e);
+    }
+  }
+  throw new Error(`đoạn ${from}-${to} lỗi mọi RPC: ${lastErr instanceof Error ? lastErr.message : lastErr}`);
+}
+
+/** Nguồn chính: quét event Transfer USDT đến địa chỉ qua RPC BSC (đoạn nhỏ, có fallback). */
 async function fetchUsdtViaRpc(address: string, sinceMs: number): Promise<IncomingTx[]> {
   const addr = address.toLowerCase();
   const paddedTo = "0x" + addr.slice(2).padStart(64, "0");
 
-  let lastErr: unknown;
+  // Lấy block mới nhất từ RPC bất kỳ đọc được.
+  let latest: number | undefined;
   for (const url of BSC_RPCS) {
     try {
-      const latest = Number(BigInt((await rpc(url, "eth_blockNumber", [])) as string));
-      const blocksBack = Math.min(
-        MAX_SCAN_BLOCKS,
-        Math.ceil((Date.now() - sinceMs) / BSC_BLOCK_MS) + 1500, // đệm
-      );
-      const fromStart = Math.max(0, latest - blocksBack);
-
-      const out: IncomingTx[] = [];
-      for (let to = latest; to >= fromStart; to -= CHUNK) {
-        const from = Math.max(fromStart, to - (CHUNK - 1));
-        const logs = (await rpc(url, "eth_getLogs", [
-          {
-            address: USDT_BSC,
-            topics: [TRANSFER_TOPIC, null, paddedTo],
-            fromBlock: "0x" + from.toString(16),
-            toBlock: "0x" + to.toString(16),
-          },
-        ])) as Array<{ transactionHash: string; data: string }>;
-        for (const lg of logs) {
-          out.push({ hash: lg.transactionHash, amount: fromTokenUnits(lg.data, 18), ts: 0 });
-        }
-        if (from === fromStart) break;
-      }
-      return out;
+      latest = Number(BigInt((await rpc(url, "eth_blockNumber", [])) as string));
+      break;
     } catch (e) {
-      lastErr = e;
-      console.error("[bsc rpc]", url, e instanceof Error ? e.message : e);
+      console.error("[blockNumber]", url, e instanceof Error ? e.message : e);
     }
   }
-  throw new Error(`Tất cả BSC RPC đều lỗi: ${lastErr instanceof Error ? lastErr.message : lastErr}`);
+  if (latest === undefined) throw new Error("Không RPC nào trả được block mới nhất");
+
+  const blocksBack = Math.min(
+    MAX_SCAN_BLOCKS,
+    Math.ceil((Date.now() - sinceMs) / BSC_BLOCK_MS) + 1500, // đệm
+  );
+  const fromStart = Math.max(0, latest - blocksBack);
+
+  // Quét theo đoạn nhỏ; mỗi đoạn tự fallback qua các RPC. Một đoạn lỗi hẳn thì ném lỗi
+  // để checkDeposit giữ PENDING (thà chờ còn hơn "0 giao dịch" giả gây bỏ sót tiền).
+  const out: IncomingTx[] = [];
+  for (let to = latest; to >= fromStart; to -= CHUNK) {
+    const from = Math.max(fromStart, to - (CHUNK - 1));
+    const logs = await getLogsChunk(BSC_RPCS, paddedTo, from, to);
+    for (const lg of logs) {
+      out.push({ hash: lg.transactionHash, amount: fromTokenUnits(lg.data, 18), ts: 0 });
+    }
+    if (from === fromStart) break;
+  }
+  return out;
 }
 
 /**
