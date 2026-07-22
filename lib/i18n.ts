@@ -24,6 +24,7 @@ const vi: Dict = {
   "err.stock": "Sản phẩm đã hết hàng.",
   "err.unavailable": "Sản phẩm không khả dụng.",
   "err.generic": "Có lỗi, vui lòng thử lại.",
+  "err.insufficient_stock": "Không đủ hàng trong kho — admin đang cập nhật.",
   "product.confirmBuy": "Xác nhận mua? Số dư của bạn sẽ bị trừ.",
 
   // nav
@@ -369,6 +370,7 @@ const en: Dict = {
   "err.stock": "This item is out of stock.",
   "err.unavailable": "This item is unavailable.",
   "err.generic": "Something went wrong, please try again.",
+  "err.insufficient_stock": "Not enough stock available — admin is updating inventory.",
   "product.confirmBuy": "Confirm purchase? Your balance will be charged.",
 
   "nav.searchPlaceholder": "Search items, accounts, services…",

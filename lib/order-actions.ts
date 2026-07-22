@@ -9,7 +9,7 @@ import { createNotification } from "@/lib/notify";
 
 export type BuyResult =
   | { ok: true; code: string }
-  | { ok: false; error: "unavailable" | "stock" | "balance" | "username" };
+  | { ok: false; error: "unavailable" | "stock" | "balance" | "username" | "insufficient_stock" };
 
 export type BuyExtra = { gameUsername?: string; gameNote?: string; qty?: number };
 
@@ -46,46 +46,59 @@ export async function buyProductAction(
   if (!user || user.balance < total) return { ok: false, error: "balance" };
 
   const code = genCode();
-  await prisma.$transaction(async (tx) => {
-    // Chỉ đơn AUTO mới lấy dữ liệu từ kho; đơn MANUAL giao tay nên bỏ qua.
-    const items = manual
-      ? []
-      : await tx.stockItem.findMany({
-          where: { productId: product.id, status: "AVAILABLE" },
-          take: qty,
-          orderBy: { createdAt: "asc" },
-        });
-    const delivered = items.map((s) => s.content).join("\n") || null;
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Chỉ đơn AUTO mới lấy dữ liệu từ kho; đơn MANUAL giao tay nên bỏ qua.
+      const items = manual
+        ? []
+        : await tx.stockItem.findMany({
+            where: { productId: product.id, status: "AVAILABLE" },
+            take: qty,
+            orderBy: { createdAt: "asc" },
+          });
 
-    const order = await tx.order.create({
-      data: {
-        code,
-        userId: user.id,
-        productId: product.id,
-        productName: product.name,
-        price: product.price,
-        qty,
-        total,
-        deliveryType: manual ? "MANUAL" : "AUTO",
-        status: manual ? "PENDING" : "COMPLETED",
-        gameUsername: manual ? gameUsername : null,
-        gameNote: manual ? gameNote : null,
-        deliveredContent: delivered,
-        delivered: !manual && items.length >= qty && items.length > 0,
-      },
-    });
-    if (items.length) {
-      await tx.stockItem.updateMany({
-        where: { id: { in: items.map((i) => i.id) } },
-        data: { status: "SOLD", orderId: order.id },
+      // CRITICAL: Đơn AUTO phải có đủ items trong kho, không thì báo lỗi hết hàng
+      if (!manual && items.length < qty) {
+        throw new Error("INSUFFICIENT_STOCK");
+      }
+
+      const delivered = items.map((s) => s.content).join("\n") || null;
+
+      const order = await tx.order.create({
+        data: {
+          code,
+          userId: user.id,
+          productId: product.id,
+          productName: product.name,
+          price: product.price,
+          qty,
+          total,
+          deliveryType: manual ? "MANUAL" : "AUTO",
+          status: manual ? "PENDING" : "COMPLETED",
+          gameUsername: manual ? gameUsername : null,
+          gameNote: manual ? gameNote : null,
+          deliveredContent: delivered,
+          delivered: !manual && items.length >= qty,
+        },
       });
-    }
-    await tx.user.update({ where: { id: user.id }, data: { balance: { decrement: total } } });
-    await tx.product.update({
-      where: { id: product.id },
-      data: { stock: { decrement: qty }, sold: { increment: qty } },
+      if (items.length) {
+        await tx.stockItem.updateMany({
+          where: { id: { in: items.map((i) => i.id) } },
+          data: { status: "SOLD", orderId: order.id },
+        });
+      }
+      await tx.user.update({ where: { id: user.id }, data: { balance: { decrement: total } } });
+      await tx.product.update({
+        where: { id: product.id },
+        data: { stock: { decrement: qty }, sold: { increment: qty } },
+      });
     });
-  });
+  } catch (err) {
+    if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {
+      return { ok: false, error: "insufficient_stock" };
+    }
+    throw err;
+  }
 
   await createNotification({
     userId: me.id,
