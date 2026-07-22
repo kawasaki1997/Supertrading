@@ -51,10 +51,13 @@ export async function POST(req: NextRequest) {
   }
 
   // Nội dung CK phải có mã lệnh NAP...
-  const orderCode = (code || "").toString().trim().toUpperCase();
-  if (!/^NAP[A-F0-9]{8}$/.test(orderCode)) {
-    return NextResponse.json({ ok: true, message: "ignored: invalid code format" });
+  // Extract mã NAP từ nội dung (có thể có prefix SEVQR, suffix FT...)
+  const content = (code || "").toString().trim().toUpperCase();
+  const match = content.match(/NAP[A-F0-9]{8}/);
+  if (!match) {
+    return NextResponse.json({ ok: true, message: "ignored: no valid NAP code found" });
   }
+  const orderCode = match[0];
 
   // Tìm lệnh nạp PENDING
   const order = await prisma.depositOrder.findUnique({
