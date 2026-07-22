@@ -125,6 +125,7 @@ model Order {
   gameNote         String? // ghi chú khách (giờ online, link bạn bè...)
   deliveredContent String? // dữ liệu account/item giao cho khách
   delivered        Boolean  @default(false)
+  stockItems       StockItem[]
   createdAt        DateTime @default(now())
 }
 
@@ -135,6 +136,7 @@ model StockItem {
   content   String // dữ liệu giao: vd "user:pass", key, info...
   status    String   @default("AVAILABLE") // AVAILABLE | SOLD
   orderId   String? // đơn đã tiêu thụ item này
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
 }
 
