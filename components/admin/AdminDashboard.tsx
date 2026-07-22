@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Plus,
   Pencil,
@@ -171,14 +172,24 @@ export function AdminDashboard({ categories }: { categories: AdminCategory[] }) 
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
                       {p.deliveryType !== "MANUAL" && (
-                        <button
-                          onClick={() => setStockModal({ open: true, product: p })}
-                          className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-lg px-2 text-xs font-semibold text-gold-300 transition-colors hover:bg-gold-500/10"
-                          aria-label="Kho hàng"
-                          title="Nhập kho"
-                        >
-                          <Boxes className="h-4 w-4" /> Kho
-                        </button>
+                        <>
+                          <Link
+                            href={`/admin/stock/${p.id}`}
+                            className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-lg px-2 text-xs font-semibold text-royal-300 transition-colors hover:bg-royal-500/10"
+                            aria-label="Xem kho"
+                            title="Xem chi tiết kho"
+                          >
+                            <Package className="h-4 w-4" /> Xem
+                          </Link>
+                          <button
+                            onClick={() => setStockModal({ open: true, product: p })}
+                            className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-lg px-2 text-xs font-semibold text-gold-300 transition-colors hover:bg-gold-500/10"
+                            aria-label="Nhập kho"
+                            title="Nhập thêm hàng"
+                          >
+                            <Boxes className="h-4 w-4" /> Nhập
+                          </button>
+                        </>
                       )}
                       <button
                         onClick={() => setProductModal({ open: true, product: p })}

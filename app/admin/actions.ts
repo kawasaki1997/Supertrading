@@ -181,6 +181,39 @@ export async function addStockAction(formData: FormData) {
   redirect("/admin?ok=stock");
 }
 
+export async function deleteStockItemAction(formData: FormData) {
+  await requireAuth();
+  const itemId = String(formData.get("itemId") ?? "");
+  if (!itemId) redirect("/admin?error=missing");
+
+  let failed = false;
+  let productId = "";
+  try {
+    const item = await prisma.stockItem.findUnique({ where: { id: itemId } });
+    if (item && item.status === "AVAILABLE") {
+      productId = item.productId;
+      await withRetry(() =>
+        prisma.$transaction([
+          prisma.stockItem.delete({ where: { id: itemId } }),
+          prisma.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: 1 } },
+          }),
+        ]),
+      );
+    }
+  } catch (e) {
+    console.error("[deleteStockItem] xóa thất bại:", e);
+    failed = true;
+  }
+  if (failed) redirect("/admin?error=delete");
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath(`/admin/stock/${productId}`);
+  redirect(`/admin/stock/${productId}?ok=deleted`);
+}
+
 /* --------------------------- manual orders ---------------------------- */
 
 export async function markOrderDeliveredAction(formData: FormData) {
