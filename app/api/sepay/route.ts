@@ -38,10 +38,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
 
+  // LOG toàn bộ payload để debug
+  console.log("[SePay] Webhook received:", JSON.stringify(body, null, 2));
+
   const {
     transferType,
     transferAmount,
     code,
+    content,
+    description,
     referenceCode,
   } = body;
 
@@ -52,12 +57,17 @@ export async function POST(req: NextRequest) {
 
   // Nội dung CK phải có mã lệnh NAP...
   // Extract mã NAP từ nội dung (có thể có prefix SEVQR, suffix FT...)
-  const content = (code || "").toString().trim().toUpperCase();
-  const match = content.match(/NAP[A-F0-9]{8}/);
+  // Thử nhiều field: code, content, description
+  const rawContent = (code || content || description || "").toString().trim().toUpperCase();
+  console.log("[SePay] Parsing content:", rawContent);
+
+  const match = rawContent.match(/NAP[A-F0-9]{8}/);
   if (!match) {
+    console.warn("[SePay] No valid NAP code found in:", rawContent);
     return NextResponse.json({ ok: true, message: "ignored: no valid NAP code found" });
   }
   const orderCode = match[0];
+  console.log("[SePay] Extracted order code:", orderCode);
 
   // Tìm lệnh nạp PENDING
   const order = await prisma.depositOrder.findUnique({
