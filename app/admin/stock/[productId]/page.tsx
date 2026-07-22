@@ -4,6 +4,7 @@ import { StockManager } from "@/components/admin/StockManager";
 
 export const dynamic = "force-dynamic";
 
+// Force Vercel rebuild to regenerate Prisma client with order relation
 export default async function StockDetailPage({
   params,
 }: {
