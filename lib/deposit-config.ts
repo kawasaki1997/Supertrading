@@ -1,5 +1,5 @@
 // Cấu hình nạp tiền. Địa chỉ ví & tỷ giá lấy từ .env (sửa ở đó).
-export type DepositMethodKey = "USDT_BEP20" | "LTC";
+export type DepositMethodKey = "USDT_BEP20" | "LTC" | "BANK" | "MOMO";
 
 export type DepositMethod = {
   key: DepositMethodKey;
@@ -30,12 +30,30 @@ export const DEPOSIT_METHODS: Record<DepositMethodKey, DepositMethod> = {
     usdPerUnit: Number(process.env.LTC_USD_RATE || 80),
     note: "Gửi LTC qua mạng Litecoin tới đúng địa chỉ ví bên dưới.",
   },
+  BANK: {
+    key: "BANK",
+    label: "Chuyển khoản ngân hàng",
+    network: "VietQR",
+    symbol: "VND",
+    address: "", // không dùng địa chỉ crypto
+    usdPerUnit: 0.00004, // 1 USD = 25,000 VND
+    note: "Chuyển khoản qua VietQR với nội dung chính xác để tự động cộng tiền.",
+  },
+  MOMO: {
+    key: "MOMO",
+    label: "Ví MoMo",
+    network: "MoMo",
+    symbol: "VND",
+    address: "",
+    usdPerUnit: 0.00004, // 1 USD = 25,000 VND
+    note: "Thanh toán qua ví MoMo, tự động cộng tiền sau khi thanh toán thành công.",
+  },
 };
 
 export const QUICK_AMOUNTS = [5, 10, 20, 50, 100];
 
 export function isValidMethod(k: string): k is DepositMethodKey {
-  return k === "USDT_BEP20" || k === "LTC";
+  return k === "USDT_BEP20" || k === "LTC" || k === "BANK" || k === "MOMO";
 }
 
 export function statusLabel(status: string) {
