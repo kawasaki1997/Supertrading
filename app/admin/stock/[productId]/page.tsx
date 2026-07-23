@@ -15,14 +15,6 @@ export default async function StockDetailPage({
     include: {
       stockItems: {
         orderBy: { createdAt: "desc" },
-        include: {
-          order: {
-            select: {
-              code: true,
-              createdAt: true,
-            },
-          },
-        },
       },
     },
   });

@@ -9,7 +9,7 @@ type StockItem = {
   content: string;
   status: string;
   createdAt: Date;
-  order: { code: string; createdAt: Date } | null;
+  orderId: string | null;
 };
 
 type Product = {
@@ -99,8 +99,8 @@ export function StockManager({ product }: { product: Product }) {
                         {new Date(item.createdAt).toLocaleString("vi-VN")}
                       </td>
                       <td className="px-4 py-3 text-xs text-muted">
-                        {item.order ? (
-                          <span>#{item.order.code}</span>
+                        {item.orderId ? (
+                          <span>#{item.orderId.slice(0, 8)}</span>
                         ) : (
                           <span className="text-muted/50">—</span>
                         )}
