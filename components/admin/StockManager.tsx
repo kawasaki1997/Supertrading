@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Package, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { deleteStockItemAction } from "@/app/admin/actions";
+import { Trash2, Package, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
+import { deleteStockItemAction, toggleAutoSyncStockAction } from "@/app/admin/actions";
 
 type StockItem = {
   id: string;
@@ -10,11 +10,14 @@ type StockItem = {
   status: string;
   createdAt: Date;
   orderId: string | null;
+  quantity: number;
 };
 
 type Product = {
   id: string;
   name: string;
+  stock: number;
+  autoSyncStock?: boolean;
   stockItems: StockItem[];
 };
 
@@ -24,7 +27,13 @@ const STATUS_MAP = {
   RESERVED: { label: "Đang giữ", icon: Clock, color: "text-amber-soft" },
 };
 
-export function StockManager({ product }: { product: Product }) {
+export function StockManager({
+  product,
+  calculatedStock
+}: {
+  product: Product;
+  calculatedStock: number;
+}) {
   const [filter, setFilter] = useState<string>("ALL");
 
   const filtered =
@@ -39,8 +48,42 @@ export function StockManager({ product }: { product: Product }) {
     RESERVED: product.stockItems.filter((i) => i.status === "RESERVED").length,
   };
 
+  const stockMismatch = product.stock !== calculatedStock;
+
   return (
     <div className="space-y-4">
+      {/* Stock sync control */}
+      <div className="rounded-xl glass p-4 flex items-center justify-between">
+        <div>
+          <h3 className="font-semibold text-parchment-dim">Tự động đồng bộ stock</h3>
+          <p className="text-xs text-muted mt-1">
+            {product.autoSyncStock
+              ? "Đang bật: Stock sẽ được sync tự động khi có thay đổi"
+              : "Đang tắt: Cần sync thủ công"}
+          </p>
+          {stockMismatch && (
+            <p className="text-xs text-amber-400 mt-1">
+              ⚠️ Stock hiện tại ({product.stock}) khác với tính toán ({calculatedStock})
+            </p>
+          )}
+        </div>
+        <form action={toggleAutoSyncStockAction}>
+          <input type="hidden" name="productId" value={product.id} />
+          <input type="hidden" name="enabled" value={product.autoSyncStock ? "false" : "true"} />
+          <button
+            type="submit"
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              product.autoSyncStock
+                ? "bg-emerald-soft/20 text-emerald-soft hover:bg-emerald-soft/30"
+                : "bg-ink-800/50 text-muted hover:bg-ink-800/70"
+            }`}
+          >
+            <RefreshCw className="h-4 w-4 inline mr-2" />
+            {product.autoSyncStock ? "Tắt" : "Bật"}
+          </button>
+        </form>
+      </div>
+
       {/* Filter tabs */}
       <div className="flex gap-2 overflow-x-auto">
         {(["ALL", "AVAILABLE", "SOLD", "RESERVED"] as const).map((status) => (

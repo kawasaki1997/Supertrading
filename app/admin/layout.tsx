@@ -31,6 +31,18 @@ export default async function AdminLayout({
               Sản phẩm
             </Link>
             <Link
+              href="/admin/analytics"
+              className="rounded-lg px-3 py-2 text-xs font-semibold text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment"
+            >
+              Thống kê
+            </Link>
+            <Link
+              href="/admin/users"
+              className="rounded-lg px-3 py-2 text-xs font-semibold text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment"
+            >
+              Tài khoản
+            </Link>
+            <Link
               href="/admin/orders"
               className="rounded-lg px-3 py-2 text-xs font-semibold text-parchment-dim transition-colors hover:bg-ink-700 hover:text-parchment"
             >

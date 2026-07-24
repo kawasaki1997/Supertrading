@@ -157,18 +157,34 @@ export async function addStockAction(formData: FormData) {
   let failed = false;
   if (lines.length > 0) {
     try {
-      await withRetry(() =>
-        prisma.$transaction([
-          prisma.stockItem.createMany({
+      await withRetry(async () => {
+        const product = await prisma.product.findUnique({
+          where: { id: productId },
+          select: { autoSyncStock: true }
+        });
+
+        await prisma.$transaction(async (tx) => {
+          await tx.stockItem.createMany({
             data: lines.map((content) => ({ productId, content })),
-          }),
-          // tăng tồn kho hiển thị theo số lượng vừa nhập
-          prisma.product.update({
-            where: { id: productId },
-            data: { stock: { increment: lines.length } },
-          }),
-        ]),
-      );
+          });
+
+          // Nếu autoSyncStock bật, tính lại từ StockItem; nếu không thì tăng thủ công
+          if (product?.autoSyncStock) {
+            const availableCount = await tx.stockItem.count({
+              where: { productId, status: "AVAILABLE" }
+            });
+            await tx.product.update({
+              where: { id: productId },
+              data: { stock: availableCount }
+            });
+          } else {
+            await tx.product.update({
+              where: { id: productId },
+              data: { stock: { increment: lines.length } },
+            });
+          }
+        });
+      });
     } catch (e) {
       console.error("[addStock] lưu thất bại:", e);
       failed = true;
@@ -192,14 +208,31 @@ export async function deleteStockItemAction(formData: FormData) {
     const item = await prisma.stockItem.findUnique({ where: { id: itemId } });
     if (item && item.status === "AVAILABLE") {
       productId = item.productId;
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { autoSyncStock: true }
+      });
+
       await withRetry(() =>
-        prisma.$transaction([
-          prisma.stockItem.delete({ where: { id: itemId } }),
-          prisma.product.update({
-            where: { id: item.productId },
-            data: { stock: { decrement: 1 } },
-          }),
-        ]),
+        prisma.$transaction(async (tx) => {
+          await tx.stockItem.delete({ where: { id: itemId } });
+
+          // Nếu autoSyncStock bật, tính lại từ StockItem; nếu không thì trừ thủ công
+          if (product?.autoSyncStock) {
+            const availableCount = await tx.stockItem.count({
+              where: { productId, status: "AVAILABLE" }
+            });
+            await tx.product.update({
+              where: { id: productId },
+              data: { stock: availableCount }
+            });
+          } else {
+            await tx.product.update({
+              where: { id: productId },
+              data: { stock: { decrement: 1 } },
+            });
+          }
+        }),
       );
     }
   } catch (e) {
@@ -237,6 +270,63 @@ export async function markOrderDeliveredAction(formData: FormData) {
   revalidatePath("/admin/orders");
   revalidatePath("/don-hang");
   redirect("/admin/orders?ok=delivered");
+}
+
+/** Sync lại stock cho tất cả sản phẩm từ StockItem */
+export async function syncAllProductStockAction() {
+  await requireAuth();
+
+  try {
+    const products = await prisma.product.findMany({
+      select: { id: true }
+    });
+
+    let syncedCount = 0;
+
+    for (const product of products) {
+      // Chỉ đếm StockItem có status AVAILABLE
+      const availableCount = await prisma.stockItem.count({
+        where: {
+          productId: product.id,
+          status: "AVAILABLE"
+        }
+      });
+
+      await prisma.product.update({
+        where: { id: product.id },
+        data: { stock: availableCount }
+      });
+
+      syncedCount++;
+    }
+
+    revalidatePath('/');
+    revalidatePath('/admin');
+    revalidatePath('/admin/stock');
+    redirect(`/admin/stock/sync?ok=synced&count=${syncedCount}`);
+  } catch (error) {
+    console.error('Error syncing all product stock:', error);
+    redirect('/admin/stock/sync?error=sync');
+  }
+}
+
+/** Bật chế độ tự động sync stock cho một sản phẩm */
+export async function toggleAutoSyncStockAction(formData: FormData) {
+  await requireAuth();
+  const productId = String(formData.get("productId") ?? "");
+  const enabled = String(formData.get("enabled") ?? "") === "true";
+
+  if (productId) {
+    await prisma.product.update({
+      where: { id: productId },
+      data: { autoSyncStock: enabled }
+    });
+
+    revalidatePath('/admin/products');
+    revalidatePath(`/admin/stock/${productId}`);
+  }
+
+  redirect(`/admin/stock/${productId}?ok=auto-${enabled ? 'enabled' : 'disabled'}`);
 }
 
 /** Hủy đơn giao tay & hoàn toàn bộ tiền về ví khách. */

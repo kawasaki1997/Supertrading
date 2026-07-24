@@ -8,6 +8,10 @@ type Deposit = {
   code: string;
   username: string;
   email: string;
+  method: string;
+  symbol: string;
+  network: string;
+  cryptoAmount: number;
   amountUsd: number;
   amountVnd: number;
   createdAt: string;
@@ -54,7 +58,7 @@ export function DepositApproval({ deposits }: { deposits: Deposit[] }) {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Duyệt lệnh nạp tiền BANK</h1>
+      <h1 className="text-2xl font-bold mb-6">Duyệt lệnh nạp tiền</h1>
       {list.length === 0 ? (
         <p className="text-gray-500">Không có lệnh nào đang chờ duyệt</p>
       ) : (
@@ -67,14 +71,30 @@ export function DepositApproval({ deposits }: { deposits: Deposit[] }) {
                   <p className="font-mono font-bold">{d.code}</p>
                 </div>
                 <div>
+                  <p className="text-sm text-gray-600">Phương thức</p>
+                  <p className="font-semibold">{d.method}</p>
+                  {d.method !== "BANK" && (
+                    <p className="text-sm text-gray-500">{d.symbol} ({d.network})</p>
+                  )}
+                </div>
+                <div>
                   <p className="text-sm text-gray-600">Khách hàng</p>
                   <p className="font-semibold">{d.username}</p>
                   <p className="text-sm text-gray-500">{d.email}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Số tiền</p>
-                  <p className="font-bold text-lg">{d.amountVnd.toLocaleString()} VND</p>
-                  <p className="text-sm text-gray-500">${d.amountUsd.toFixed(2)}</p>
+                  {d.method === "BANK" ? (
+                    <>
+                      <p className="font-bold text-lg">{d.amountVnd.toLocaleString()} VND</p>
+                      <p className="text-sm text-gray-500">${d.amountUsd.toFixed(2)}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-bold text-lg">{d.cryptoAmount} {d.symbol}</p>
+                      <p className="text-sm text-gray-500">${d.amountUsd.toFixed(2)}</p>
+                    </>
+                  )}
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Thời gian tạo</p>

@@ -88,10 +88,23 @@ export async function buyProductAction(
         });
       }
       await tx.user.update({ where: { id: user.id }, data: { balance: { decrement: total } } });
-      await tx.product.update({
-        where: { id: product.id },
-        data: { stock: { decrement: qty }, sold: { increment: qty } },
-      });
+
+      // Nếu sản phẩm bật autoSyncStock, tính lại stock từ StockItem AVAILABLE
+      // Nếu không, trừ thủ công như cũ
+      if (product.autoSyncStock) {
+        const availableCount = await tx.stockItem.count({
+          where: { productId: product.id, status: "AVAILABLE" }
+        });
+        await tx.product.update({
+          where: { id: product.id },
+          data: { stock: availableCount, sold: { increment: qty } },
+        });
+      } else {
+        await tx.product.update({
+          where: { id: product.id },
+          data: { stock: { decrement: qty }, sold: { increment: qty } },
+        });
+      }
     });
   } catch (err) {
     if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {

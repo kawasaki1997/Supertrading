@@ -26,6 +26,9 @@ export default async function StockDetailPage({
       notFound();
     }
 
+    const calculatedStock = product.stockItems.reduce((sum, item) => sum + item.quantity, 0);
+    const stockMismatch = product.stock !== calculatedStock;
+
     return (
       <div className="mx-auto max-w-5xl space-y-6 p-6">
         <div>
@@ -35,9 +38,16 @@ export default async function StockDetailPage({
           <p className="mt-1 text-sm text-muted">
             {product.stockItems.length} items tổng cộng
           </p>
+          {stockMismatch && (
+            <div className="mt-2 rounded-md bg-amber-50 border border-amber-200 p-3">
+              <p className="text-sm text-amber-800">
+                ⚠️ Stock không khớp: Product.stock = {product.stock}, tính từ StockItem = {calculatedStock}
+              </p>
+            </div>
+          )}
         </div>
 
-        <StockManager product={product} />
+        <StockManager product={product} calculatedStock={calculatedStock} />
       </div>
     );
   } catch (error) {

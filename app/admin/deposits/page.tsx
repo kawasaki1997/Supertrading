@@ -8,7 +8,6 @@ export default async function AdminDepositsPage() {
   const pending = await prisma.depositOrder.findMany({
     where: {
       status: "PENDING",
-      method: "BANK",
     },
     include: {
       user: {
@@ -23,6 +22,10 @@ export default async function AdminDepositsPage() {
     code: d.code,
     username: d.user.name,
     email: d.user.email,
+    method: d.method,
+    symbol: d.symbol,
+    network: d.network,
+    cryptoAmount: d.cryptoAmount,
     amountUsd: d.amountUsd,
     amountVnd: Math.round(d.amountUsd / 0.00004),
     createdAt: d.createdAt.toISOString(),
