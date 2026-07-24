@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { prisma, withRetry } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { isAuthed } from "@/lib/auth";
-import { DEPOSIT_METHODS, isValidMethod, type DepositMethod } from "@/lib/deposit-config";
+import { getDepositMethods, isValidMethod, type DepositMethod } from "@/lib/deposit-config";
 import { createNotification } from "@/lib/notify";
 import { fetchIncoming } from "@/lib/chain";
 
@@ -38,7 +38,9 @@ export async function createDepositAction(formData: FormData) {
 
   const methodKey = String(formData.get("method") ?? "");
   if (!isValidMethod(methodKey)) redirect("/nap-tien?error=method");
-  const method = DEPOSIT_METHODS[methodKey];
+
+  const methods = await getDepositMethods();
+  const method = methods[methodKey];
 
   const amountUsd = Math.round(Number(formData.get("amount") ?? 0) * 100) / 100;
   if (!Number.isFinite(amountUsd) || amountUsd < 1) redirect("/nap-tien?error=amount");
@@ -80,6 +82,9 @@ type PendingOrder = {
   createdAt: Date;
 };
 
+// Cache blockchain txs để tránh rate limit (TTL 90s)
+const txCache = new Map<string, { txs: any[]; expires: number }>();
+
 /**
  * Lõi khớp & cộng tiền cho 1 lệnh nạp PENDING (KHÔNG phụ thuộc session).
  * Dùng chung cho: client tự dò (checkDepositAction) và cron server (settle-deposits route).
@@ -87,19 +92,34 @@ type PendingOrder = {
 export async function settleDepositOrder(order: PendingOrder): Promise<CheckResult> {
   if (order.status !== "PENDING") return { status: order.status };
 
+  // Cache theo method+address để tránh gọi API blockchain nhiều lần
+  const cacheKey = `${order.method}:${order.address}`;
+  const cached = txCache.get(cacheKey);
   let txs;
-  try {
-    txs = await fetchIncoming(order.method, order.address, order.createdAt.getTime());
-  } catch (e) {
-    console.error(`[settle ${order.code}] đọc blockchain lỗi:`, e);
-    return { status: "PENDING" };
+
+  if (cached && cached.expires > Date.now()) {
+    txs = cached.txs;
+  } else {
+    try {
+      txs = await fetchIncoming(order.method, order.address, order.createdAt.getTime());
+      txCache.set(cacheKey, { txs, expires: Date.now() + 90_000 });
+    } catch (e) {
+      console.error(`[settle ${order.code}] đọc blockchain lỗi:`, e);
+      return { status: "PENDING" };
+    }
   }
 
-  const tol = order.symbol === "USDT" ? 0.00005 : 0.0000005;
+  // Khớp theo giá trị USD thay vì số lượng crypto tuyệt đối, để chấp nhận dao động tỉ giá
+  const method = DEPOSIT_METHODS[order.method];
+  const usdTolerance = 0.5; // cho phép sai số ±$0.50
   const sinceTs = Math.floor(order.createdAt.getTime() / 1000) - 600; // đệm 10 phút
 
+  console.log(`[settle ${order.code}] method=${order.method} rate=${method.usdPerUnit} orderUsd=${order.amountUsd} txCount=${txs.length}`);
+
   for (const tx of txs) {
-    if (Math.abs(tx.amount - order.cryptoAmount) > tol) continue;
+    const receivedUsd = tx.amount * method.usdPerUnit;
+    console.log(`  tx ${tx.hash.slice(0,8)} amount=${tx.amount} → $${receivedUsd.toFixed(2)} vs order $${order.amountUsd} diff=$${Math.abs(receivedUsd - order.amountUsd).toFixed(2)}`);
+    if (Math.abs(receivedUsd - order.amountUsd) > usdTolerance) continue;
     if (tx.ts && tx.ts < sinceTs) continue;
 
     // tx này đã dùng cho lệnh khác chưa?

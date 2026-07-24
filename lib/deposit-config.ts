@@ -1,3 +1,5 @@
+import { getLtcUsdRate } from "./binance";
+
 // Cấu hình nạp tiền. Địa chỉ ví & tỷ giá lấy từ .env (sửa ở đó).
 export type DepositMethodKey = "USDT_BEP20" | "LTC" | "BANK" | "MOMO";
 
@@ -11,6 +13,56 @@ export type DepositMethod = {
   note: string;
 };
 
+/**
+ * Lấy config nạp tiền với tỉ giá thời gian thực
+ */
+export async function getDepositMethods(): Promise<Record<DepositMethodKey, DepositMethod>> {
+  const ltcRate = await getLtcUsdRate();
+
+  return {
+    USDT_BEP20: {
+      key: "USDT_BEP20",
+      label: "USDT",
+      network: "BEP-20",
+      symbol: "USDT",
+      address: process.env.DEPOSIT_USDT_BEP20 || "0x_CHUA_CAU_HINH_DIA_CHI",
+      usdPerUnit: 1,
+      note: "Gửi USDT qua mạng BEP-20 (Binance Smart Chain). Chỉ gửi đúng mạng BEP-20.",
+    },
+    LTC: {
+      key: "LTC",
+      label: "Litecoin",
+      network: "LTC",
+      symbol: "LTC",
+      address: process.env.DEPOSIT_LTC || "L_CHUA_CAU_HINH_DIA_CHI",
+      usdPerUnit: ltcRate,
+      note: "Gửi LTC qua mạng Litecoin tới đúng địa chỉ ví bên dưới.",
+    },
+    BANK: {
+      key: "BANK",
+      label: "Chuyển khoản ngân hàng",
+      network: "VietQR",
+      symbol: "VND",
+      address: "", // không dùng địa chỉ crypto
+      usdPerUnit: 0.00004, // 1 USD = 25,000 VND
+      note: "Chuyển khoản qua VietQR với nội dung chính xác để tự động cộng tiền.",
+    },
+    MOMO: {
+      key: "MOMO",
+      label: "Ví MoMo",
+      network: "MoMo",
+      symbol: "VND",
+      address: "",
+      usdPerUnit: 0.00004, // 1 USD = 25,000 VND
+      note: "Thanh toán qua ví MoMo, tự động cộng tiền sau khi thanh toán thành công.",
+    },
+  };
+}
+
+/**
+ * Export DEPOSIT_METHODS tĩnh cho backward compatibility
+ * (dùng tỉ giá fallback từ .env)
+ */
 export const DEPOSIT_METHODS: Record<DepositMethodKey, DepositMethod> = {
   USDT_BEP20: {
     key: "USDT_BEP20",
@@ -35,8 +87,8 @@ export const DEPOSIT_METHODS: Record<DepositMethodKey, DepositMethod> = {
     label: "Chuyển khoản ngân hàng",
     network: "VietQR",
     symbol: "VND",
-    address: "", // không dùng địa chỉ crypto
-    usdPerUnit: 0.00004, // 1 USD = 25,000 VND
+    address: "",
+    usdPerUnit: 0.00004,
     note: "Chuyển khoản qua VietQR với nội dung chính xác để tự động cộng tiền.",
   },
   MOMO: {
@@ -45,10 +97,11 @@ export const DEPOSIT_METHODS: Record<DepositMethodKey, DepositMethod> = {
     network: "MoMo",
     symbol: "VND",
     address: "",
-    usdPerUnit: 0.00004, // 1 USD = 25,000 VND
+    usdPerUnit: 0.00004,
     note: "Thanh toán qua ví MoMo, tự động cộng tiền sau khi thanh toán thành công.",
   },
 };
+
 
 export const QUICK_AMOUNTS = [5, 10, 20, 50, 100];
 

@@ -36,6 +36,7 @@ model Product {
   order      Int      @default(0)
   active     Boolean  @default(true)
   deliveryType String @default("AUTO") // AUTO (account/stock tự động) | MANUAL (vật phẩm in-game, giao tay)
+  autoSyncStock Boolean @default(false) // Tự động sync stock từ StockItem
   cartItems  CartItem[]
   stockItems StockItem[]
   createdAt  DateTime @default(now())
