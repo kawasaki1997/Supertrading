@@ -10,7 +10,6 @@ type StockItem = {
   status: string;
   createdAt: Date;
   orderId: string | null;
-  quantity: number;
 };
 
 type Product = {

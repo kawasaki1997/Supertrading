@@ -110,7 +110,12 @@ export async function settleDepositOrder(order: PendingOrder): Promise<CheckResu
   }
 
   // Khớp theo giá trị USD thay vì số lượng crypto tuyệt đối, để chấp nhận dao động tỉ giá
-  const method = DEPOSIT_METHODS[order.method];
+  const methods = await getDepositMethods();
+  const method = methods[order.method as keyof typeof methods];
+  if (!method) {
+    console.error(`[settle ${order.code}] không tìm thấy method ${order.method}`);
+    return { status: "PENDING" };
+  }
   const usdTolerance = 0.5; // cho phép sai số ±$0.50
   const sinceTs = Math.floor(order.createdAt.getTime() / 1000) - 600; // đệm 10 phút
 
