@@ -26,7 +26,7 @@ export default async function StockDetailPage({
       notFound();
     }
 
-    const calculatedStock = product.stockItems.reduce((sum, item) => sum + item.quantity, 0);
+    const calculatedStock = product.stockItems.filter(item => item.status === "AVAILABLE").length;
     const stockMismatch = product.stock !== calculatedStock;
 
     return (
