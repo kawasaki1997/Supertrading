@@ -187,9 +187,14 @@ export function Hero() {
               {t("common.buyNow")}
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </button>
-            <button className="inline-flex cursor-pointer items-center gap-2 rounded-xl glass px-6 py-3 text-sm font-semibold text-parchment ring-gold transition-colors duration-200 hover:text-gold-300">
+            <a
+              href="https://discord.gg/cgSzBwTer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl glass px-6 py-3 text-sm font-semibold text-parchment ring-gold transition-colors duration-200 hover:text-gold-300"
+            >
               {t("hero.joinDiscord")}
-            </button>
+            </a>
           </motion.div>
 
           {/* BUY • FAST • TRUSTED */}

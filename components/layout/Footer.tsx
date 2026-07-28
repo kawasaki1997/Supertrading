@@ -45,11 +45,13 @@ export async function Footer() {
           © 2026 Super Trading. {t("footer.rights")}
         </p>
         <a
-          href="#"
+          href="https://discord.gg/cgSzBwTer"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-lg glass px-3.5 py-2 text-xs font-semibold text-parchment ring-gold transition-colors hover:text-gold-300"
         >
           <MessageCircle className="h-4 w-4 text-gold-400" />
-          discord.gg/SuperTrading
+          discord.gg/cgSzBwTer
         </a>
       </div>
     </footer>
